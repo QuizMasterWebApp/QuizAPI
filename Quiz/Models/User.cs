@@ -1,18 +1,22 @@
 ﻿using System.Diagnostics;
 
-//класс пользователя
-namespace Quiz.Models
+namespace Quiz.Models;
+public class User
 {
-    public class User
-    {
-        public Guid Id { get; set; }
-        public string Username { get; set; }
-        public string PasswordHash { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public Guid RoleId { get; set; }
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public string PasswordHash { get; set; }
+    public DateTime CreatedAt { get; set; }
+    //public int RoleId { get; set; }
 
-        public Role Role { get; set; }
-        public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
-        public ICollection<Attempt> Attemts { get; set; } = new List<Attempt>();
-    }
+    public Role Role { get; set; }
+    public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+    public ICollection<Attempt> Attempts { get; set; } = new List<Attempt>();
+}
+
+public enum Role
+{
+    Guest = 0,
+    Author = 1,
+    Admin = 2
 }

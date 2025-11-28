@@ -13,7 +13,7 @@ using Quiz.Models;
 namespace Quiz.Migrations
 {
     [DbContext(typeof(QuizDBContext))]
-    [Migration("20251126055835_Initial")]
+    [Migration("20251128153238_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -28,18 +28,20 @@ namespace Quiz.Migrations
 
             modelBuilder.Entity("Quiz.Models.Answer", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("AttemptId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttemptId")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserAnswer")
                         .IsRequired()
@@ -56,15 +58,17 @@ namespace Quiz.Migrations
 
             modelBuilder.Entity("Quiz.Models.Attempt", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("QuizId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("QuizId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Score")
                         .HasColumnType("integer");
@@ -72,8 +76,8 @@ namespace Quiz.Migrations
                     b.Property<DateTime>("TimeSpent")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -86,9 +90,11 @@ namespace Quiz.Migrations
 
             modelBuilder.Entity("Quiz.Models.Question", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<List<string>>("CorrectAnswer")
                         .IsRequired()
@@ -97,48 +103,33 @@ namespace Quiz.Migrations
                     b.Property<List<string>>("Options")
                         .HasColumnType("jsonb");
 
-                    b.Property<Guid>("QuestionTypeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("QuizId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("QuizId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
-                    b.HasIndex("QuestionTypeId");
+                    b.HasKey("Id");
 
                     b.HasIndex("QuizId");
 
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("Quiz.Models.QuestionType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("QuestionTypes");
-                });
-
             modelBuilder.Entity("Quiz.Models.Quiz", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Category")
                         .HasColumnType("text");
@@ -170,26 +161,13 @@ namespace Quiz.Migrations
                     b.ToTable("Quizzes");
                 });
 
-            modelBuilder.Entity("Quiz.Models.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
             modelBuilder.Entity("Quiz.Models.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -198,16 +176,14 @@ namespace Quiz.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
@@ -240,7 +216,7 @@ namespace Quiz.Migrations
                         .IsRequired();
 
                     b.HasOne("Quiz.Models.User", "User")
-                        .WithMany("Attemts")
+                        .WithMany("Attempts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -252,12 +228,6 @@ namespace Quiz.Migrations
 
             modelBuilder.Entity("Quiz.Models.Question", b =>
                 {
-                    b.HasOne("Quiz.Models.QuestionType", "Type")
-                        .WithMany()
-                        .HasForeignKey("QuestionTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Quiz.Models.Quiz", "Quiz")
                         .WithMany("Questions")
                         .HasForeignKey("QuizId")
@@ -265,8 +235,6 @@ namespace Quiz.Migrations
                         .IsRequired();
 
                     b.Navigation("Quiz");
-
-                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Quiz.Models.Quiz", b =>
@@ -278,17 +246,6 @@ namespace Quiz.Migrations
                         .IsRequired();
 
                     b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("Quiz.Models.User", b =>
-                {
-                    b.HasOne("Quiz.Models.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Quiz.Models.Attempt", b =>
@@ -310,7 +267,7 @@ namespace Quiz.Migrations
 
             modelBuilder.Entity("Quiz.Models.User", b =>
                 {
-                    b.Navigation("Attemts");
+                    b.Navigation("Attempts");
 
                     b.Navigation("Quizzes");
                 });

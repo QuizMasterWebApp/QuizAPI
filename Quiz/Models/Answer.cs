@@ -1,15 +1,13 @@
-﻿namespace Quiz.Models
-{
-    public class Answer
-    {
-        public Guid Id { get; set; }
-        public string UserAnswer { get; set; }
-        public bool IsCorrect { get; set; }
-        public Guid AttemptId { get; set; }
-        public Guid QuestionId { get; set; }
+﻿namespace Quiz.Models;
 
-        public Attempt Attempt { get; set; }
-        public Question Question { get; set; }
-        
-    }
+public class Answer
+{
+    public int Id { get; set; }
+    public string UserAnswer { get; set; }
+    public bool IsCorrect { get; set; }
+    public int AttemptId { get; set; }
+    public int QuestionId { get; set; }
+
+    public Attempt Attempt { get; set; }
+    public Question Question { get; set; }
 }

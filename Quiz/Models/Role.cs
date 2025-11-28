@@ -1,8 +1,16 @@
-﻿namespace Quiz.Models
-{
-    public class Role
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
-}
+﻿namespace Quiz.Models;
+
+//public class Role
+//{
+//    public int Id { get; set; }
+//    public string Name { get; set; }
+
+//    public ICollection<User> Users { get; set; } = new List<User>();
+//}
+
+//enum Roles
+//{
+//    Guest,
+//    Author,
+//    Admin
+//}
