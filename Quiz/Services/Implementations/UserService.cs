@@ -29,7 +29,7 @@ public class UserService : IUserService
         return await _userRepository.GetAllAsync();
     }
 
-    public async Task<User> RegisterAsync(string username, string password, Role role)
+    public async Task<User> RegisterAsync(string username, string password)
     {
         var hashedPassword = PasswordHasher.HashPassword(password);
         var existing = await _userRepository.GetByUsernameAsync(username);
@@ -41,7 +41,7 @@ public class UserService : IUserService
             Username = username,
             PasswordHash = hashedPassword,
             CreatedAt = DateTime.UtcNow,
-            Role = role
+            Role = Role.Authorized
         };
 
         await _userRepository.AddAsync(user);
@@ -66,6 +66,19 @@ public class UserService : IUserService
             return false;
 
         await _userRepository.DeleteAsync(user);
+        return true;
+    }
+
+    public async Task<bool> UpdateAsync(User user)
+    {
+        var existingUser = await _userRepository.GetByIdAsync(user.Id);
+        if (existingUser == null)
+            return false;
+
+        existingUser.Username = user.Username;
+        existingUser.PasswordHash = user.PasswordHash;
+
+        await _userRepository.UpdateAsync(existingUser);
         return true;
     }
 }

@@ -7,7 +7,6 @@ public class User
     public string Username { get; set; }
     public string PasswordHash { get; set; }
     public DateTime CreatedAt { get; set; }
-    //public int RoleId { get; set; }
 
     public Role Role { get; set; }
     public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
@@ -17,6 +16,6 @@ public class User
 public enum Role
 {
     Guest = 0,
-    Author = 1,
+    Authorized = 1,
     Admin = 2
 }

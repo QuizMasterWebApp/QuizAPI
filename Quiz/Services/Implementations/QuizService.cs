@@ -67,4 +67,4 @@ public class QuizService : IQuizService
         await _quizRepository.DeleteAsync(existing);
         return true;
     }
-    }
+}
