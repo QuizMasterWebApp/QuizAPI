@@ -1,4 +1,5 @@
 ﻿using Quiz.Models;
+using Quiz.DTOs.User;
 
 namespace Quiz.Services.Interfaces;
 

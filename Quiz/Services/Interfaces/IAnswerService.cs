@@ -1,5 +1,6 @@
 ﻿using Quiz.Models;
 using System.Threading.Tasks;
+using Quiz.DTOs.Answer;
 
 namespace Quiz.Services.Interfaces;
 

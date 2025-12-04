@@ -1,4 +1,5 @@
 ﻿namespace Quiz.Services.Interfaces;
+using Quiz.DTOs.Quiz;
 
 public interface IQuizService
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Quiz.Models;
+using Quiz.DTOs.Question;
 using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
@@ -128,34 +129,4 @@ public class QuestionController : ControllerBase
 
         return Ok("Deleted");
     }
-}
-
-public class QuestionDto
-{
-    public int Id { get; set; }
-    public string Text { get; set; } = string.Empty;
-    public List<string>? Options { get; set; }
-    public List<string> CorrectAnswer { get; set; } = new();
-    public int QuizId { get; set; }
-    public QuestionType Type { get; set; }
-}
-
-public class QuestionCreateDto
-{
-    [Required]
-    public string Text { get; set; } = string.Empty;
-    [Required]
-    public int QuizId { get; set; }
-    [Required]
-    public QuestionType Type { get; set; }
-    public List<string>? Options { get; set; }
-    public List<string>? CorrectAnswer { get; set; }
-}
-
-public class QuestionUpdateDto
-{
-    public string? Text { get; set; }
-    public QuestionType? Type { get; set; }
-    public List<string> Options { get; set; }
-    public List<string> CorrectAnswer { get; set; }
 }

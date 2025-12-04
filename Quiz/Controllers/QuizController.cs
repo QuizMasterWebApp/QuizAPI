@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Quiz.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using Quiz.DTOs.Quiz;
+
 
 namespace Quiz.Controllers;
 
@@ -164,43 +166,6 @@ public class QuizController : ControllerBase
         if (!success)
             return StatusCode(500, "Failed to delete quiz due to server error.");
         return Ok("Deleted");
-    }
-
-    public class QuizDto
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string? Category { get; set; }
-        public string Language { get; set; } = "Russian";
-        public bool IsPublic { get; set; }
-        public int AuthorId { get; set; }
-        public DateTime? TimeLimit { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    public class QuizCreateDto
-    {
-        [Required]
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string? Category { get; set; }
-        [Required]
-        public string Language { get; set; } = "Russian";
-        public bool IsPublic { get; set; }
-        [Required]
-        public int AuthorId { get; set; }
-        public DateTime TimeLimit { get; set; }
-    }
-
-    public class QuizUpdateDto
-    {
-        public string? Title { get; set; }
-        public string? Description { get; set; }
-        public string? Category { get; set; }
-        public string? Language { get; set; }
-        public bool? IsPublic { get; set; }
-        public DateTime? TimeLimit { get; set; }
     }
 
 }

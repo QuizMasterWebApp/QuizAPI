@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Quiz.Models;
 using Quiz.Services.Interfaces;
+using Quiz.DTOs.Answer;
 using System.ComponentModel.DataAnnotations;
 
 namespace Quiz.Controllers;
@@ -103,26 +104,4 @@ public class AnswerController : ControllerBase
 
         return Ok(result);
     }
-}
-
-// DTO
-public class AnswerDto
-{
-    public int Id { get; set; }
-    public string UserAnswer { get; set; } = string.Empty;
-    public bool IsCorrect { get; set; }
-    public int AttemptId { get; set; }
-    public int QuestionId { get; set; }
-}
-
-public class AnswerCreateDto
-{
-    [Required] public int AttemptId { get; set; }
-    [Required] public string? UserAnswer { get; set; }
-}
-
-public class AnswerUpdateDto
-{
-    [Required] public int AttemptId { get; set; }
-    public string? UserAnswer { get; set; }
 }

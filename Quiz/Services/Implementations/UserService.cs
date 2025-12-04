@@ -2,6 +2,7 @@
 using Quiz.Repositories.Interfaces;
 using Quiz.Services.Interfaces;
 using System.Xml.Linq;
+using Quiz.DTOs.User;
 
 namespace Quiz.Services.Implementations;
 

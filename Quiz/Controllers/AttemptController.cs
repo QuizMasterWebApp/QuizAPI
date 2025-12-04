@@ -136,15 +136,3 @@ public class AttemptController : ControllerBase
         return Ok(result);
     }
 }
-
-// DTO
-public class StartAttemptDto
-{
-    [Required]
-    public int UserId { get; set; }
-}
-
-public class AttemptResultDto : AttemptDto
-{
-    public int CorrectAnswersCount { get; set; }
-}

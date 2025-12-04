@@ -1,5 +1,6 @@
 ﻿using Quiz.Repositories.Interfaces;
 using Quiz.Services.Interfaces;
+using Quiz.DTOs.Quiz;
 
 namespace Quiz.Services.Implementations;
 
