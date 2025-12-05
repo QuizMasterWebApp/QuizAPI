@@ -73,16 +73,19 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] AuthDto dto)
+    public async Task<IActionResult> AddNewUser([FromBody] AuthDto dto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        string token;
         try
         {
-            var user = await _userService.RegisterAsync(dto.Username, dto.Password);
-            return Ok(user);
+            token = await _userService.RegisterAsync(dto.Username, dto.Password);
+            if (string.IsNullOrEmpty(token))
+                return Conflict("This username is already in use");
+            return Ok(new { Token = token });
         }
         catch (Exception ex)
         {
@@ -98,11 +101,11 @@ public class UserController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var user = await _userService.LoginAsync(dto.Username, dto.Password);
-        if (user == null)
+        string token;
+        token = await _userService.LoginAsync(dto.Username, dto.Password);
+        if (string.IsNullOrEmpty(token))
             return Unauthorized("Invalid username or password");
-
-        return Ok(user);
+        return Ok(new { Token = token });
     }
 }
 

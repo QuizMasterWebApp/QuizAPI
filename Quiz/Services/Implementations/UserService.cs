@@ -30,12 +30,13 @@ public class UserService : IUserService
         return await _userRepository.GetAllAsync();
     }
 
-    public async Task<User> RegisterAsync(string username, string password)
+    public async Task<string> RegisterAsync(string username, string password)
     {
-        var hashedPassword = PasswordHasher.HashPassword(password);
         var existing = await _userRepository.GetByUsernameAsync(username);
         if (existing != null)
             throw new Exception("User with this username already exists");
+
+        var hashedPassword = PasswordHasher.HashPassword(password);
 
         var user = new User
         {
@@ -46,18 +47,19 @@ public class UserService : IUserService
         };
 
         await _userRepository.AddAsync(user);
-        return user;
+        return TokenGeneration.GenerateToken(user.Id);
     }
 
-    public async Task<User?> LoginAsync(string username, string password)
+    public async Task<string> LoginAsync(string username, string password)
     {
         var user = await _userRepository.GetByUsernameAsync(username);
         if (user == null)
-            return null;
+            return string.Empty;
 
         if (!PasswordHasher.VerifyPassword(password, user.PasswordHash))
-            return null;
-        else return user;
+            return string.Empty;
+
+        return TokenGeneration.GenerateToken(user.Id);
     }
 
     public async Task<bool> DeleteAsync(int id)

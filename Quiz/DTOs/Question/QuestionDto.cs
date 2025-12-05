@@ -1,5 +1,5 @@
 namespace Quiz.DTOs.Question;
-using Quiz.Models;
+using global::Quiz.Models;
 
 public class QuestionDto
 {

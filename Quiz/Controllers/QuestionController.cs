@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Quiz.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Quiz.DTOs.Question;
+using Quiz.Models;
 using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
@@ -61,6 +62,7 @@ public class QuestionController : ControllerBase
 
     // POST: api/question
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] QuestionCreateDto dto)
     {
         if (!ModelState.IsValid)
@@ -97,6 +99,7 @@ public class QuestionController : ControllerBase
 
     // PUT: api/question/{id}
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] QuestionUpdateDto dto)
     {
         var existing = await _questionService.GetByIdAsync(id);
@@ -117,6 +120,7 @@ public class QuestionController : ControllerBase
 
     // DELETE: api/question/{id}
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var question = await _questionService.GetByIdAsync(id);

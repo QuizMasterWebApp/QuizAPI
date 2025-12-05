@@ -30,7 +30,6 @@ public class AnswerController : ControllerBase
                 QuestionId = questionId,
                 AttemptId = dto.AttemptId,
                 UserAnswer = dto.UserAnswer ?? string.Empty
-                //IsCorrect будет вычислен в сервисе автоматически!
             };
 
             var created = await _answerService.CreateAsync(answer);

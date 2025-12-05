@@ -10,7 +10,5 @@ public class QuizCreateDto
     [Required]
     public string Language { get; set; } = "Russian";
     public bool IsPublic { get; set; }
-    [Required]
-    public int AuthorId { get; set; }
     public DateTime TimeLimit { get; set; }
 }

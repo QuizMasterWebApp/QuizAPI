@@ -6,6 +6,6 @@ public class QuestionUpdateDto
 {
     public string? Text { get; set; }
     public QuestionType? Type { get; set; }
-    public List<string> Options { get; set; }
-    public List<string> CorrectAnswer { get; set; }
+    public List<string>? Options { get; set; }
+    public List<string>? CorrectAnswer { get; set; }
 }

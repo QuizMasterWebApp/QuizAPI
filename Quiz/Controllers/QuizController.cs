@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Quiz.DTOs.Quiz;
 using Quiz.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
-using Quiz.DTOs.Quiz;
+using System.Security.Claims;
 
 
 namespace Quiz.Controllers;
@@ -93,10 +95,16 @@ public class QuizController : ControllerBase
 
     // POST: api/quiz
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] QuizCreateDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(user))
+            return Unauthorized("User not authenticated.");
+        int authorizedUserId = int.Parse(user);
 
         try
         {
@@ -107,7 +115,7 @@ public class QuizController : ControllerBase
                 Category = dto.Category,
                 Language = dto.Language,
                 isPublic = dto.IsPublic,
-                AuthorId = dto.AuthorId,
+                AuthorId = authorizedUserId,
                 TimeLimit = dto.TimeLimit,
                 CreatedAt = DateTime.Now
             };
@@ -135,6 +143,7 @@ public class QuizController : ControllerBase
 
     // PUT: api/quiz/{id}
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] QuizUpdateDto dto)
     {
         var existing = await _quizService.GetByIdAsync(id);
@@ -156,7 +165,8 @@ public class QuizController : ControllerBase
     }
 
     // DELETE: api/quiz/{id}
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var quiz = await _quizService.GetByIdAsync(id);

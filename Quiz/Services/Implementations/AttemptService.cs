@@ -12,19 +12,22 @@ public class AttemptService : IAttemptService
     private readonly IQuizRepository _quizRepository;
     private readonly IQuestionRepository _questionRepository;
     private readonly IAnswerRepository _answerRepository;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AttemptService(
         IAttemptRepository attemptRepository,
         IUserRepository userRepository,
         IQuizRepository quizRepository,
         IQuestionRepository questionRepository,
-        IAnswerRepository answerRepository)
+        IAnswerRepository answerRepository,
+        IHttpContextAccessor httpContextAccessor)
     {
         _attemptRepository = attemptRepository;
         _userRepository = userRepository;
         _quizRepository = quizRepository;
         _questionRepository = questionRepository;
         _answerRepository = answerRepository;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<Attempt?> GetByIdAsync(int id)
@@ -42,11 +45,11 @@ public class AttemptService : IAttemptService
         return await _attemptRepository.GetAttemptsByQuizAsync(quizId);
     }
 
-    public async Task<Attempt> StartAttemptAsync(int userId, int quizId)
+    public async Task<Attempt> StartAttemptAsync(int quizId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-            throw new Exception("User not found");
+        var ctx = _httpContextAccessor.HttpContext!;
+        var userId = ctx.GetUserId();          // если авторизован — вернет число
+        var guestId = ctx.GetGuestSessionId(); // если гость — вернет строку
 
         var quiz = await _quizRepository.GetByIdAsync(quizId);
         if (quiz == null)
@@ -56,6 +59,7 @@ public class AttemptService : IAttemptService
         {
             UserId = userId,
             QuizId = quizId,
+            GuestSessionId = userId == null ? guestId : null,
             CompletedAt = DateTime.MinValue,
             Score = 0
         };

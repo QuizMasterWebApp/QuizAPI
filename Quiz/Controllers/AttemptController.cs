@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Quiz.DTOs.Attempt;
 using Quiz.Models;
 using Quiz.Services.Interfaces;
-using Quiz.DTOs.Attempt;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Quiz.Controllers;
 
@@ -19,15 +20,14 @@ public class AttemptController : ControllerBase
 
     // POST: api/attempt/quiz-sessions/{quizId}/start
     [HttpPost("quiz-sessions/{quizId}/start")]
-    public async Task<IActionResult> StartAttempt(int quizId, [FromBody] StartAttemptDto dto)
+    public async Task<IActionResult> StartAttempt(int quizId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         try
         {
-            var attempt = await _attemptService.StartAttemptAsync(dto.UserId, quizId);
-
+            var attempt = await _attemptService.StartAttemptAsync(quizId);
             return Ok(new AttemptDto
             {
                 Id = attempt.Id,
@@ -35,6 +35,7 @@ public class AttemptController : ControllerBase
                 TimeSpent = attempt.TimeSpent,
                 CompletedAt = attempt.CompletedAt,
                 UserId = attempt.UserId,
+                GuestSessionId = attempt.UserId == null ? attempt.GuestSessionId : null,
                 QuizId = attempt.QuizId
             });
         }
@@ -45,7 +46,6 @@ public class AttemptController : ControllerBase
     }
 
     // POST: api/attempt/quiz-sessions/{quizId}/stop
-    // Внимание: quizId не используется — завершаем по attemptId
     [HttpPost("quiz-sessions/stop")]
     public async Task<IActionResult> FinishAttempt([FromBody] FinishAttemptDto dto)
     {
@@ -55,7 +55,6 @@ public class AttemptController : ControllerBase
         try
         {
             var attempt = await _attemptService.FinishAttemptAsync(dto.AttemptId, dto.Answers);
-
             return Ok(new AttemptResultDto
             {
                 Id = attempt.Id,
@@ -63,6 +62,7 @@ public class AttemptController : ControllerBase
                 TimeSpent = attempt.TimeSpent,
                 CompletedAt = attempt.CompletedAt,
                 UserId = attempt.UserId,
+                GuestSessionId = attempt.UserId == null ? attempt.GuestSessionId : null,
                 QuizId = attempt.QuizId,
                 CorrectAnswersCount = attempt.Score
             });
@@ -88,6 +88,7 @@ public class AttemptController : ControllerBase
             TimeSpent = attempt.TimeSpent,
             CompletedAt = attempt.CompletedAt,
             UserId = attempt.UserId,
+            GuestSessionId = attempt.UserId == null ? attempt.GuestSessionId : null,
             QuizId = attempt.QuizId
         });
     }
@@ -108,6 +109,7 @@ public class AttemptController : ControllerBase
             TimeSpent = a.TimeSpent,
             CompletedAt = a.CompletedAt,
             UserId = a.UserId,
+            GuestSessionId = a.UserId == null ? a.GuestSessionId : null,
             QuizId = a.QuizId
         });
 
@@ -130,6 +132,7 @@ public class AttemptController : ControllerBase
             TimeSpent = a.TimeSpent,
             CompletedAt = a.CompletedAt,
             UserId = a.UserId,
+            GuestSessionId = a.UserId == null ? a.GuestSessionId : null,
             QuizId = a.QuizId
         });
 
