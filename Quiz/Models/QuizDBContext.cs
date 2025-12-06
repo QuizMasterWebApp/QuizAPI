@@ -17,12 +17,12 @@ public class QuizDBContext : DbContext
     }
 
     public DbSet<Attempt> Attempts { get; set; }
-    public DbSet<Answer> Answers { get; set; }
-    //public DbSet<QuestionType> QuestionTypes { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Option> Options { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Quiz> Quizzes { get; set; }
-    //public DbSet<Role> Roles { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserAnswer> UserAnswers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -47,120 +47,141 @@ public class QuizDBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // User - Role
-        //modelBuilder.Entity<User>()
-        //    .HasOne(u => u.Role)
-        //    .WithMany()
-        //    .HasForeignKey("RoleId")
-        //    .OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<User>()
-            .Property(u => u.Role)
-            .HasConversion<int>();
-
-        // User - Quiz
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Quizzes)
-            .WithOne(r => r.Author)
-            .HasForeignKey("AuthorId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // User - Attempt
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Attempts)
-            .WithOne(r => r.User)
-            .HasForeignKey("UserId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Question - QuestionType
-        //modelBuilder.Entity<Question>()
-        //    .HasOne(q => q.Type)
-        //    .WithMany()
-        //    .HasForeignKey("QuestionTypeId")
-        //    .OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<Question>()
-            .Property(q => q.Type)
-            .HasConversion<int>();
-
-        // Question - Quiz
-        modelBuilder.Entity<Question>()
-            .HasOne(q => q.Quiz)
-            .WithMany(r => r.Questions)
-            .HasForeignKey("QuizId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Question - Answer
-        modelBuilder.Entity<Question>()
-            .HasMany(q => q.Answers)
-            .WithOne(r => r.Question)
-            .HasForeignKey("QuestionId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Question.Options 
-        modelBuilder.Entity<Question>()
-             .Property(q => q.Options)
-             .HasColumnType("jsonb");
-
-        modelBuilder.Entity<Question>()
-            .Property(q => q.CorrectAnswer)
-            .HasColumnType("jsonb");
-
-
-        // Quiz - User
-        modelBuilder.Entity<Quiz>()
-            .HasOne(u => u.Author)
-            .WithMany(r => r.Quizzes)
-            .HasForeignKey("AuthorId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Quiz - Attempt
-        modelBuilder.Entity<Quiz>()
-           .HasMany(q => q.Attempts)
-           .WithOne(r => r.Quiz)
-           .HasForeignKey("QuizId")
-           .OnDelete(DeleteBehavior.Restrict);
-
-        // Quiz - Question
-        modelBuilder.Entity<Quiz>()
-           .HasMany(q => q.Questions)
-           .WithOne(r => r.Quiz)
-           .HasForeignKey("QuizId")
-           .OnDelete(DeleteBehavior.Restrict);
-
-        // Attempt - User
-        modelBuilder.Entity<Attempt>()
-            .HasOne(u => u.User)
-            .WithMany(r => r.Attempts)
-            .HasForeignKey("UserId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Attempt - Quiz
-        modelBuilder.Entity<Attempt>()
-            .HasOne(u => u.Quiz)
-            .WithMany(r => r.Attempts)
-            .HasForeignKey("QuizId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Attempt - Answer
-        modelBuilder.Entity<Attempt>()
-            .HasMany(u => u.Answers)
-            .WithOne(r => r.Attempt)
-            .HasForeignKey("AttemptId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Answer - Attempt
-        modelBuilder.Entity<Answer>()
-            .HasOne(u => u.Attempt)
-            .WithMany(r => r.Answers)
-            .HasForeignKey("AttemptId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Attempt - Question
-        modelBuilder.Entity<Answer>()
-            .HasOne(u => u.Question)
-            .WithMany(r => r.Answers)
-            .HasForeignKey("QuestionId")
-            .OnDelete(DeleteBehavior.Restrict);
-
         base.OnModelCreating(modelBuilder);
+
+        //  User 
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Id).ValueGeneratedOnAdd();
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.Property(u => u.Username)
+                  .IsRequired()
+                  .HasMaxLength(50);
+            entity.Property(u => u.PasswordHash).IsRequired();
+
+            entity.HasMany(u => u.Quizzes)
+                  .WithOne(q => q.Author)
+                  .HasForeignKey(q => q.AuthorId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(u => u.Attempts)
+                  .WithOne(a => a.User)
+                  .HasForeignKey(a => a.UserId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        //  Category 
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        //  Question 
+        modelBuilder.Entity<Question>(entity =>
+        {
+            entity.HasKey(q => q.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(q => q.Text).IsRequired();
+
+            entity.Property(e => e.Type)
+               .HasConversion<int>()
+               .IsRequired();
+
+            entity.HasOne(q => q.Quiz)
+                  .WithMany(quiz => quiz.Questions)
+                  .HasForeignKey(q => q.QuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Options)
+               .WithOne(e => e.Question)
+               .HasForeignKey(e => e.QuestionId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.UserAnswers)
+                .WithOne(e => e.Question)
+                .HasForeignKey(e => e.QuestionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+        });
+
+        //  Quiz 
+        modelBuilder.Entity<Quiz>(entity =>
+        {
+            entity.HasKey(q => q.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(q => q.Title).IsRequired().HasMaxLength(200);
+
+            entity.HasOne(q => q.Category)
+                  .WithMany(c => c.Quizzes)
+                  .HasForeignKey(q => q.CategoryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(q => q.Author)
+                  .WithMany(u => u.Quizzes)
+                  .HasForeignKey(q => q.AuthorId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(e => e.Questions)
+                .WithOne(e => e.Quiz)
+                .HasForeignKey(e => e.QuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(q => q.Attempts)
+                  .WithOne(a => a.Quiz)
+                  .HasForeignKey(a => a.QuizId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //  Attempt 
+        modelBuilder.Entity<Attempt>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Score).HasDefaultValue(0);
+
+            entity.HasOne(e => e.Quiz)
+                .WithMany(e => e.Attempts)
+                .HasForeignKey(e => e.QuizId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.User)
+                .WithMany(e => e.Attempts)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasMany(e => e.UserAnswers)
+                .WithOne(e => e.Attempt)
+                .HasForeignKey(e => e.AttemptId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //  UserAnswer 
+        modelBuilder.Entity<UserAnswer>(entity =>
+        {
+            entity.HasKey(ua => ua.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            // Составной уникальный индекс для предотвращения дубликатов
+            entity.HasIndex(e => new { e.AttemptId, e.QuestionId, e.ChosenOptionId }).IsUnique();
+
+            entity.HasOne(ua => ua.Question)
+                  .WithMany(q => q.UserAnswers)
+                  .HasForeignKey(ua => ua.QuestionId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(ua => ua.Attempt)
+                  .WithMany(a => a.UserAnswers)
+                  .HasForeignKey(ua => ua.AttemptId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ua => ua.ChosenOption)
+                  .WithMany(o => o.UserAnswers)
+                  .HasForeignKey(ua => ua.ChosenOptionId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

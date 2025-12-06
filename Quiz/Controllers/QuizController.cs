@@ -33,8 +33,8 @@ public class QuizController : ControllerBase
             Id = q.Id,
             Title = q.Title,
             Description = q.Description,
-            Category = q.Category,
-            Language = q.Language,
+            CategoryId = q.CategoryId,
+            //Language = q.Language,
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,
@@ -57,8 +57,8 @@ public class QuizController : ControllerBase
             Id = quiz.Id,
             Title = quiz.Title,
             Description = quiz.Description,
-            Category = quiz.Category,
-            Language = quiz.Language,
+            CategoryId = quiz.CategoryId,
+            //Language = quiz.Language,
             IsPublic = quiz.isPublic,
             AuthorId = quiz.AuthorId,
             TimeLimit = quiz.TimeLimit,
@@ -82,8 +82,8 @@ public class QuizController : ControllerBase
             Id = q.Id,
             Title = q.Title,
             Description = q.Description,
-            Category = q.Category,
-            Language = q.Language,
+            CategoryId = q.CategoryId,
+            //Language = q.Language,
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,
@@ -112,8 +112,8 @@ public class QuizController : ControllerBase
             {
                 Title = dto.Title,
                 Description = dto.Description,
-                Category = dto.Category,
-                Language = dto.Language,
+                CategoryId = dto.CategoryId,
+                //Language = dto.Language,
                 isPublic = dto.IsPublic,
                 AuthorId = authorizedUserId,
                 TimeLimit = dto.TimeLimit,
@@ -127,8 +127,8 @@ public class QuizController : ControllerBase
                 Id = created.Id,
                 Title = created.Title,
                 Description = created.Description,
-                Category = created.Category,
-                Language = created.Language,
+                CategoryId = created.CategoryId,
+                //Language = created.Language,
                 IsPublic = created.isPublic,
                 AuthorId = created.AuthorId,
                 TimeLimit= created.TimeLimit,
@@ -152,8 +152,8 @@ public class QuizController : ControllerBase
 
         existing.Title = dto.Title ?? existing.Title;
         existing.Description = dto.Description ?? existing.Description;
-        existing.Category = dto.Category ?? existing.Category;
-        existing.Language = dto.Language ?? existing.Language;
+        existing.CategoryId = dto.CategoryId ?? existing.CategoryId;
+        //existing.Language = dto.Language ?? existing.Language;
         existing.isPublic = dto.IsPublic ?? existing.isPublic;
         existing.TimeLimit = dto.TimeLimit ?? existing.TimeLimit;
 

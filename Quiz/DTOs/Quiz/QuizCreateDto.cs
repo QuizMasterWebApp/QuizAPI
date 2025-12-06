@@ -6,9 +6,9 @@ public class QuizCreateDto
     [Required]
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public string? Category { get; set; }
+    public int? CategoryId { get; set; }
     [Required]
-    public string Language { get; set; } = "Russian";
+    //public string Language { get; set; } = "Russian";
     public bool IsPublic { get; set; }
-    public DateTime TimeLimit { get; set; }
+    public TimeSpan TimeLimit { get; set; }
 }

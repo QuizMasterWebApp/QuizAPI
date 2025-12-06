@@ -32,8 +32,8 @@ public class QuestionController : ControllerBase
             Id = q.Id,
             Text = q.Text,
             Type = q.Type,
-            Options = q.Options,
-            CorrectAnswer = q.CorrectAnswer,
+            //Options = q.Options,
+            //CorrectAnswer = q.CorrectAnswer,
             QuizId = q.QuizId
         });
     }
@@ -52,8 +52,8 @@ public class QuestionController : ControllerBase
             Id = q.Id,
             Text = q.Text,
             Type = q.Type,
-            Options = q.Options,
-            CorrectAnswer = q.CorrectAnswer,
+            //Options = q.Options,
+            //CorrectAnswer = q.CorrectAnswer,
             QuizId = q.QuizId
         });
 
@@ -75,8 +75,8 @@ public class QuestionController : ControllerBase
                 Text = dto.Text,
                 QuizId = dto.QuizId,
                 Type = dto.Type,
-                Options = dto.Options ?? new List<string>(),
-                CorrectAnswer = dto.CorrectAnswer ?? new List<string>()
+                //Options = dto.Options ?? new List<string>(),
+                //CorrectAnswer = dto.CorrectAnswer ?? new List<string>()
             };
 
             var created = await _questionService.CreateAsync(question);
@@ -86,8 +86,8 @@ public class QuestionController : ControllerBase
                 Id = created.Id,
                 Text = created.Text,
                 Type = created.Type,
-                Options = created.Options,
-                CorrectAnswer = created.CorrectAnswer,
+                //Options = created.Options,
+                //CorrectAnswer = created.CorrectAnswer,
                 QuizId = created.QuizId
             });
         }
@@ -108,8 +108,8 @@ public class QuestionController : ControllerBase
 
         existing.Text = dto.Text ?? existing.Text;
         existing.Type = dto.Type ?? existing.Type;
-        existing.Options = dto.Options ?? existing.Options;
-        existing.CorrectAnswer = dto.CorrectAnswer ?? existing.CorrectAnswer;
+        //existing.Options = dto.Options ?? existing.Options;
+        //existing.CorrectAnswer = dto.CorrectAnswer ?? existing.CorrectAnswer;
 
         var success = await _questionService.UpdateAsync(existing);
         if (!success)

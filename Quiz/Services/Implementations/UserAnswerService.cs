@@ -6,32 +6,32 @@ using Quiz.DTOs.Answer;
 
 namespace Quiz.Services.Implementations;
 
-public class AnswerService : IAnswerService
+public class UserAnswerService : IUserAnswerService
 {
-    private readonly IAnswerRepository _answerRepository;
+    private readonly IUserAnswerRepository _useranswerRepository;
     private readonly IAttemptRepository _attemptRepository;
     private readonly IQuestionRepository _questionRepository;
 
-    public AnswerService(IAnswerRepository answerRepository,
+    public UserAnswerService(IUserAnswerRepository answerRepository,
        IAttemptRepository attemptRepository,
        IQuestionRepository questionRepository)
     {
-        _answerRepository = answerRepository;
+        _useranswerRepository = answerRepository;
         _attemptRepository = attemptRepository;
         _questionRepository = questionRepository;
     }
 
-    public async Task<Answer?> GetByIdAsync(int id)
+    public async Task<UserAnswer?> GetByIdAsync(int id)
     {
-        return await _answerRepository.GetByIdAsync(id);
+        return await _useranswerRepository.GetByIdAsync(id);
     }
 
-    public async Task<IEnumerable<Answer>> GetAnswersByAttemptAsync(int attemptId)
+    public async Task<IEnumerable<UserAnswer>> GetAnswersByAttemptAsync(int attemptId)
     {
-        return await _answerRepository.GetAnswersByAttemptAsync(attemptId);
+        return await _useranswerRepository.GetAnswersByAttemptAsync(attemptId);
     }
 
-    public async Task<Answer> CreateAsync(Answer answer)
+    public async Task<UserAnswer> CreateAsync(UserAnswer answer)
     {
         // Проверяем, существует ли попытка
         var attempt = await _attemptRepository.GetByIdAsync(answer.AttemptId);
@@ -47,25 +47,25 @@ public class AnswerService : IAnswerService
         if (question.QuizId != attempt.QuizId)
             throw new Exception("Attempt cannot answer a question from a different Quiz");
 
-        await _answerRepository.AddAsync(answer);
+        await _useranswerRepository.AddAsync(answer);
         return answer;
     }
 
-    public async Task<bool> UpdateAsync(Answer answer)
+    public async Task<bool> UpdateAsync(UserAnswer answer)
     {
-        var exists = await _answerRepository.GetByIdAsync(answer.Id);
+        var exists = await _useranswerRepository.GetByIdAsync(answer.Id);
         if (exists == null) return false;
 
-        await _answerRepository.UpdateAsync(answer);
+        await _useranswerRepository.UpdateAsync(answer);
         return true;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var answer = await _answerRepository.GetByIdAsync(id);
+        var answer = await _useranswerRepository.GetByIdAsync(id);
         if (answer == null) return false;
 
-        await _answerRepository.DeleteAsync(id);
+        await _useranswerRepository.DeleteAsync(id);
         return true;
     }
 }

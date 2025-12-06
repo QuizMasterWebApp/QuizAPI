@@ -57,13 +57,13 @@ public class Program
         builder.Services.AddScoped<IQuizRepository, QuizRepository>();
         builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
         builder.Services.AddScoped<IAttemptRepository, AttemptRepository>();
-        builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
+        builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IQuizService, QuizService>();
         builder.Services.AddScoped<IQuestionService, QuestionService>();
         builder.Services.AddScoped<IAttemptService, AttemptService>();
-        builder.Services.AddScoped<IAnswerService, AnswerService>();
+        builder.Services.AddScoped<IUserAnswerService, UserAnswerService>();
 
         builder.Services.AddHttpContextAccessor();
 

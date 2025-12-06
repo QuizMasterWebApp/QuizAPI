@@ -43,7 +43,7 @@ public class UserService : IUserService
             Username = username,
             PasswordHash = hashedPassword,
             CreatedAt = DateTime.UtcNow,
-            Role = Role.Authorized
+            //Role = Role.Authorized
         };
 
         await _userRepository.AddAsync(user);

@@ -50,8 +50,8 @@ public class QuizService : IQuizService
 
         existing.Title = quiz.Title;
         existing.Description = quiz.Description;
-        existing.Category = quiz.Category;
-        existing.Language = quiz.Language;
+        existing.CategoryId = quiz.CategoryId;
+        //existing.Language = quiz.Language;
         existing.isPublic = quiz.isPublic;
         existing.TimeLimit = quiz.TimeLimit;
 

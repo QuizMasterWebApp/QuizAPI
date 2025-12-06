@@ -34,8 +34,8 @@ public class QuestionService : IQuestionService
             throw new Exception("Quiz not found");
 
         // Для безопасности: корректный формат списков
-        question.Options ??= new List<string>();
-        question.CorrectAnswer ??= new List<string>();
+        //question.Options ??= new List<string>();
+        //question.CorrectAnswer ??= new List<string>();
 
         await _questionRepository.AddAsync(question);
         return question;
@@ -49,8 +49,8 @@ public class QuestionService : IQuestionService
 
         existing.Text = question.Text;
         existing.Type = question.Type;
-        existing.Options = question.Options ?? new List<string>();
-        existing.CorrectAnswer = question.CorrectAnswer ?? new List<string>();
+        //existing.Options = question.Options ?? new List<string>();
+        //existing.CorrectAnswer = question.CorrectAnswer ?? new List<string>();
 
         await _questionRepository.UpdateAsync(existing);
         return true;

@@ -8,10 +8,10 @@ namespace Quiz.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AnswerController : ControllerBase
+public class UserAnswerController : ControllerBase
 {
-    private readonly IAnswerService _answerService;
-    public AnswerController(IAnswerService answerService)
+    private readonly IUserAnswerService _answerService;
+    public UserAnswerController(IUserAnswerService answerService)
     {
         _answerService = answerService;
     }
@@ -25,11 +25,11 @@ public class AnswerController : ControllerBase
 
         try
         {
-            var answer = new Answer
+            var answer = new UserAnswer
             {
                 QuestionId = questionId,
                 AttemptId = dto.AttemptId,
-                UserAnswer = dto.UserAnswer ?? string.Empty
+                //UserAnswer = dto.UserAnswer ?? string.Empty
             };
 
             var created = await _answerService.CreateAsync(answer);
@@ -37,8 +37,8 @@ public class AnswerController : ControllerBase
             return Ok(new AnswerDto
             {
                 Id = created.Id,
-                UserAnswer = created.UserAnswer,
-                IsCorrect = created.IsCorrect,
+                //UserAnswer = created.UserAnswer,
+                //IsCorrect = created.IsCorrect,
                 AttemptId = created.AttemptId,
                 QuestionId = created.QuestionId
             });
@@ -63,7 +63,7 @@ public class AnswerController : ControllerBase
         if (existing == null)
             return NotFound($"Answer for question {questionId} in attempt {dto.AttemptId} not found.");
 
-        existing.UserAnswer = dto.UserAnswer ?? existing.UserAnswer;
+        //existing.UserAnswer = dto.UserAnswer ?? existing.UserAnswer;
 
         var success = await _answerService.UpdateAsync(existing);
         if (!success)
@@ -76,8 +76,8 @@ public class AnswerController : ControllerBase
         return Ok(new AnswerDto
         {
             Id = updated.Id,
-            UserAnswer = updated.UserAnswer,
-            IsCorrect = updated.IsCorrect,
+            //UserAnswer = updated.UserAnswer,
+            //IsCorrect = updated.IsCorrect,
             AttemptId = updated.AttemptId,
             QuestionId = updated.QuestionId
         });
@@ -95,8 +95,8 @@ public class AnswerController : ControllerBase
         var result = answers.Select(a => new AnswerDto
         {
             Id = a.Id,
-            UserAnswer = a.UserAnswer,
-            IsCorrect = a.IsCorrect,
+            //UserAnswer = a.UserAnswer,
+            //IsCorrect = a.IsCorrect,
             AttemptId = a.AttemptId,
             QuestionId = a.QuestionId
         });

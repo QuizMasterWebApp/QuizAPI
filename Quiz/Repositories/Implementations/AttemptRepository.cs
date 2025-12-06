@@ -16,7 +16,7 @@ public class AttemptRepository : IAttemptRepository
     public async Task<Attempt?> GetByIdAsync(int id)
     {
         return await _context.Attempts
-            .Include(a => a.Answers)     //  ответы
+            .Include(a => a.UserAnswers)     //  ответы
             .Include(a => a.Quiz)        //  викторина
             .Include(a => a.User)        //  пользователь
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -49,7 +49,7 @@ public class AttemptRepository : IAttemptRepository
     {
         return await _context.Attempts
             .Where(a => a.UserId == userId)
-            .Include(a => a.Answers)
+            .Include(a => a.UserAnswers)
             .Include(a => a.Quiz)
             .ToListAsync();
     }
@@ -58,7 +58,7 @@ public class AttemptRepository : IAttemptRepository
     {
         return await _context.Attempts
             .Where(a => a.QuizId == quizId)
-            .Include(a => a.Answers)
+            .Include(a => a.UserAnswers)
             .Include(a => a.User)
             .ToListAsync();
     }

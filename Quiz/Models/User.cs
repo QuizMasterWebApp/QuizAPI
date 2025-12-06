@@ -8,14 +8,7 @@ public class User
     public string PasswordHash { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    public Role Role { get; set; }
     public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
     public ICollection<Attempt> Attempts { get; set; } = new List<Attempt>();
 }
 
-public enum Role
-{
-    Guest = 0,
-    Authorized = 1,
-    Admin = 2
-}
