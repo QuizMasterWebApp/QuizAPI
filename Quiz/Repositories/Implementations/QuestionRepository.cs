@@ -22,6 +22,7 @@ public class QuestionRepository : IQuestionRepository
     {
         return await _context.Questions
             .Include(q => q.Options)
+            .Include(q => q.Quiz)
             .FirstOrDefaultAsync(q => q.Id == id);
     }
 

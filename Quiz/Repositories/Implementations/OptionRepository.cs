@@ -15,7 +15,10 @@ public class OptionRepository : IOptionRepository
 
     public async Task<Option?> GetByIdAsync(int id)
     {
-        return await _context.Options.FindAsync(id);
+        return await _context.Options
+             .Include(o => o.Question)
+             .ThenInclude(q => q.Quiz)
+             .FirstOrDefaultAsync(o => o.Id == id);
     }
 
     public async Task<IEnumerable<Option>> GetOptionsByQuestionAsync(int questionId)

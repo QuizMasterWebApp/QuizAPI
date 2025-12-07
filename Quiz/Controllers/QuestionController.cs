@@ -6,6 +6,7 @@ using Quiz.Models;
 using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Quiz.Controllers;
 
@@ -13,13 +14,15 @@ namespace Quiz.Controllers;
 [ApiController]
 public class QuestionController : ControllerBase
 {
+    private readonly IQuizService _quizService;
     private readonly IQuestionService _questionService;
     private readonly IOptionService _optionService;
 
-    public QuestionController(IQuestionService questionService, IOptionService optionService)
+    public QuestionController(IQuestionService questionService, IOptionService optionService, IQuizService quizService)
     {
         _questionService = questionService;
         _optionService = optionService;
+        _quizService = quizService;
     }
 
     private QuestionDto MapToQuestionDto(Question q)
@@ -57,6 +60,12 @@ public class QuestionController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
+        var quiz = await _quizService.GetByIdAsync(dto.QuizId);
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int authorizedUserId = int.Parse(user);
+        if (quiz.AuthorId != authorizedUserId)
+            return Conflict("You have no access to add questtions in this quiz");
+
         try
         {
             var question = new Question
@@ -89,6 +98,11 @@ public class QuestionController : ControllerBase
         if (existing == null)
             return NotFound($"Question with ID {id} not found.");
 
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int authorizedUserId = int.Parse(user);
+        if (existing.Quiz.AuthorId != authorizedUserId)
+            return Conflict("You have no access to edit this questtion");
+
         existing.Text = dto.Text ?? existing.Text;
         existing.Type = dto.Type ?? existing.Type;
         
@@ -117,10 +131,19 @@ public class QuestionController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
+        var question = await _questionService.GetByIdAsync(id);
+        if (question == null)
+            return NotFound($"Question with ID {id} not found.");
+
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int authorizedUserId = int.Parse(user);
+        if (question.Quiz.AuthorId != authorizedUserId)
+            return Conflict("You have no access to delete this questtion");
+
         var success = await _questionService.DeleteAsync(id);
         
         if (!success)
-            return NotFound($"Question with ID {id} not found or failed to delete."); 
+            return StatusCode(500, "Failed to delete question due to server error.");
         return Ok("Deleted");
     }
 
@@ -163,6 +186,15 @@ public class QuestionController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Create(int questionid, [FromBody] CreateOptionDto dto)
     {
+        var question = await _questionService.GetByIdAsync(questionid);
+        if (question == null)
+            return NotFound($"Question with ID {questionid} not found.");
+
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int authorizedUserId = int.Parse(user);
+        if (question.Quiz.AuthorId != authorizedUserId)
+            return Conflict("You have no access to add options");
+
         var option = new Option
         {
             QuestionId = questionid,
@@ -188,6 +220,12 @@ public class QuestionController : ControllerBase
         if (existing == null)
             return NotFound($"Option with ID {id} not found.");
 
+        var question = existing.Question;
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int authorizedUserId = int.Parse(user);
+        if (question.Quiz.AuthorId != authorizedUserId)
+            return Conflict("You have no access to edit this option");
+
         existing.Text = dto.Text ?? existing.Text;
         existing.IsCorrect = dto.IsCorrect ?? existing.IsCorrect;
 
@@ -197,5 +235,27 @@ public class QuestionController : ControllerBase
             return StatusCode(500, "Failed to update option due to server error.");
 
         return Ok("Updated");
+    }
+
+    // DELETE: api/question/option/{id}
+    [HttpDelete("option/{id}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteOption(int id)
+    {
+        var option = await _optionService.GetByIdAsync(id);
+        if (option == null)
+            return NotFound($"Option with ID {id} not found.");
+
+        var question = option.Question;
+
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        int authorizedUserId = int.Parse(user);
+        if (question.Quiz.AuthorId != authorizedUserId)
+            return Conflict("You have no access to delete this option");
+
+        var success = await _optionService.DeleteAsync(id);
+        if (!success)
+            return StatusCode(500, "Failed to delete option due to server error.");
+        return Ok("Deleted");
     }
 }

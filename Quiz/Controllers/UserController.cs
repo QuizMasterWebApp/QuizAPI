@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.DTOs.Attempt;
 using Quiz.DTOs.Quiz;
@@ -158,6 +159,51 @@ public class UserController : ControllerBase
         if (string.IsNullOrEmpty(token))
             return Unauthorized("Invalid username or password");
         return Ok(new { Token = token });
+    }
+
+    // PUT: api/user/{id}
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> Update(int id, [FromBody] UserUpdateDto dto)
+    {
+        var existing = await _userService.GetByIdAsync(id);
+        if (existing == null)
+            return NotFound($"User with ID {id} not found.");
+
+        string? hashedPassword = null;
+        if (dto.Password is not null)
+            hashedPassword = PasswordHasher.HashPassword(dto.Password);
+
+        if (dto.UserName is not null)
+        {
+            User? checkname = await _userService.GetByUsernameAsync(dto.UserName);
+            if (checkname is not null)
+                return Conflict($"Username {dto.UserName} is taken");
+        }
+
+        existing.Username = dto.UserName ?? existing.Username;
+        existing.PasswordHash = hashedPassword ?? existing.PasswordHash;
+
+        var success = await _userService.UpdateAsync(existing);
+        if (!success)
+            return StatusCode(500, "Failed to update user due to server error.");
+
+        return Ok("Updated");
+    }
+
+    // DELETE: api/user/{id}
+    [HttpDelete("{id}")]
+    [Authorize]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var quiz = await _userService.GetByIdAsync(id);
+        if (quiz == null)
+            return NotFound($"User with ID {id} not found.");
+
+        var success = await _userService.DeleteAsync(id);
+        if (!success)
+            return StatusCode(500, "Failed to delete user due to server error.");
+        return Ok("Deleted");
     }
 }
 
