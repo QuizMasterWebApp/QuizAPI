@@ -114,6 +114,7 @@ public class Program
         app.UseHsts();
         app.UseHttpsRedirection();
         app.UseRouting();
+        app.UseMiddleware<SecurityHeadersMiddleware>();
         
         app.UseAuthentication();
         app.UseAuthorization();
