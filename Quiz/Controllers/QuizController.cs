@@ -179,7 +179,7 @@ public class QuizController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (existing.AuthorId != authorizedUserId)
-            return Conflict("You have no access to edit this quiz");
+            return Forbid("You have no access to edit this quiz");
 
         existing.Title = dto.Title ?? existing.Title;
         existing.Description = dto.Description ?? existing.Description;
@@ -206,7 +206,7 @@ public class QuizController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to edit this quiz");
+            return Forbid("You have no access to edit this quiz");
 
         var success = await _quizService.DeleteAsync(id);
         if (!success)

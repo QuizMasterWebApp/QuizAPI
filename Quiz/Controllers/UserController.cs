@@ -139,7 +139,7 @@ public class UserController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (existing.Id != authorizedUserId)
-            return Conflict("You have no access to edit this user");
+            return Forbid("You have no access to edit this user");
 
         string? hashedPassword = null;
         if (dto.Password is not null)
@@ -174,7 +174,7 @@ public class UserController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (existing.Id != authorizedUserId)
-            return Conflict("You have no access to delete this user");
+            return Forbid("You have no access to delete this user");
 
         var success = await _userService.DeleteAsync(id);
         if (!success)

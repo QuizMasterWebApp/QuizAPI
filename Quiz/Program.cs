@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
+using Quiz.Middleware;
 using Quiz.Models;
 using Quiz.Repositories.Implementations;
 using Quiz.Repositories.Interfaces;
@@ -116,7 +117,10 @@ public class Program
         
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<GuestSessionMiddleware>();
+
         app.MapControllers();
 
         app.Run();

@@ -1,4 +1,4 @@
-﻿namespace Quiz;
+﻿namespace Quiz.Middleware;
 
 public class GuestSessionMiddleware
 {

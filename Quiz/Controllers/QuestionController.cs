@@ -64,7 +64,7 @@ public class QuestionController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to add questtions in this quiz");
+            return Forbid("You have no access to add questtions in this quiz");
 
         try
         {
@@ -101,7 +101,7 @@ public class QuestionController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (existing.Quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to edit this questtion");
+            return Forbid("You have no access to edit this questtion");
 
         existing.Text = dto.Text ?? existing.Text;
         existing.Type = dto.Type ?? existing.Type;
@@ -138,7 +138,7 @@ public class QuestionController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (question.Quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to delete this questtion");
+            return Forbid("You have no access to delete this questtion");
 
         var success = await _questionService.DeleteAsync(id);
         
@@ -193,7 +193,7 @@ public class QuestionController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (question.Quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to add options");
+            return Forbid("You have no access to add options");
 
         var option = new Option
         {
@@ -224,7 +224,7 @@ public class QuestionController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (question.Quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to edit this option");
+            return Forbid("You have no access to edit this option");
 
         existing.Text = dto.Text ?? existing.Text;
         existing.IsCorrect = dto.IsCorrect ?? existing.IsCorrect;
@@ -251,7 +251,7 @@ public class QuestionController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (question.Quiz.AuthorId != authorizedUserId)
-            return Conflict("You have no access to delete this option");
+            return Forbid("You have no access to delete this option");
 
         var success = await _optionService.DeleteAsync(id);
         if (!success)
