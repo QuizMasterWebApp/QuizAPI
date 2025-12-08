@@ -46,9 +46,6 @@ public class Program
             });
         });
 
-        //builder.Services.Configure<JwtOptions>(
-        // builder.Configuration.GetSection("JwtOptions"));
-
         builder.Services.AddDbContext<QuizDBContext>(options =>
         {
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(
@@ -65,6 +62,7 @@ public class Program
         builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
         builder.Services.AddScoped<IOptionRepository, OptionRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IQuizService, QuizService>();
@@ -73,9 +71,9 @@ public class Program
         builder.Services.AddScoped<IUserAnswerService, UserAnswerService>();
         builder.Services.AddScoped<IOptionService, OptionService>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
-        //builder.Services.AddScoped<JwtTokenService>();
-        //builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
          .AddJwtBearer(options =>

@@ -23,6 +23,7 @@ public class QuizDBContext : DbContext
     public DbSet<Quiz> Quizzes { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UserAnswer> UserAnswers { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

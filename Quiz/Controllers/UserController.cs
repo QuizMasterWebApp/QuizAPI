@@ -20,12 +20,14 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly IQuizService _quizService;
     private readonly IAttemptService _attemptService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public UserController(IUserService userService, IQuizService quizService, IAttemptService attemptService)
+    public UserController(IUserService userService, IQuizService quizService, IAttemptService attemptService, IRefreshTokenService refreshTokenService)
     {
         _userService = userService;
         _quizService = quizService;
         _attemptService = attemptService;
+        _refreshTokenService = refreshTokenService;
     }
 
     [HttpGet]
@@ -125,42 +127,6 @@ public class UserController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> AddNewUser([FromBody] AuthDto dto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        string token;
-        try
-        {
-            token = await _userService.RegisterAsync(dto.Username, dto.Password);
-            if (string.IsNullOrEmpty(token))
-                return Conflict("This username is already in use");
-            return Ok(new { Token = token });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    // POST api/user/login
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] AuthDto dto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        string token;
-        token = await _userService.LoginAsync(dto.Username, dto.Password);
-        if (string.IsNullOrEmpty(token))
-            return Unauthorized("Invalid username or password");
-        return Ok(new { Token = token });
-    }
-
     // PUT: api/user/{id}
     [HttpPut("{id}")]
     [Authorize]
@@ -214,6 +180,81 @@ public class UserController : ControllerBase
         if (!success)
             return StatusCode(500, "Failed to delete user due to server error.");
         return Ok("Deleted");
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> AddNewUser([FromBody] AuthDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        string token;
+        try
+        {
+            token = await _userService.RegisterAsync(dto.Username, dto.Password);
+            if (string.IsNullOrEmpty(token))
+                return Conflict("This username is already in use");
+            return Ok(new { Token = token });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    // POST api/user/login
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] AuthDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        string token = await _userService.LoginAsync(dto.Username, dto.Password);
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized("Invalid username or password");
+
+        var user = await _userService.GetByUsernameAsync(dto.Username);
+        var refresh = await _refreshTokenService.CreateRefreshToken(user.Id);
+
+        Response.Cookies.Append("refreshToken", refresh, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
+        return Ok(new { Token = token });
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh()
+    {
+        var refresh = Request.Cookies["refreshToken"];
+        if (refresh == null)
+            return Unauthorized();
+
+        var accessToken = await _refreshTokenService.RefreshTokenAsync(refresh);
+
+        if (accessToken == null)
+            return Unauthorized("Refresh token invalid");
+
+        return Ok(new { Token = accessToken });
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var refresh = Request.Cookies["refreshToken"];
+        if (refresh != null)
+        {
+            await _refreshTokenService.LogoutAsync(refresh);
+            Response.Cookies.Delete("refreshToken");
+        }
+
+        return Ok();
     }
 }
 
