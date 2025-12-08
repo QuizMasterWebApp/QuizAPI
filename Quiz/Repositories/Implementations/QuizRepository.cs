@@ -62,6 +62,15 @@ public class QuizRepository : IQuizRepository
             .FirstOrDefaultAsync(q => q.Id == id);
     }
 
+    public async Task<Models.Quiz?> GetByAccessKeyAsync(string key)
+    {
+        // Ищем викторину по приватному ключу и сразу загружаем вопросы и опции, необходимые для подключения.
+        return await _context.Quizzes
+            .Include(q => q.Questions)
+                .ThenInclude(q => q.Options)
+            .FirstOrDefaultAsync(q => q.PrivateAccessKey == key.ToUpper()); // Сохраняем и ищем в верхнем регистре
+    }
+
     public async Task DeleteAsync(int id)
     {
         var quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == id);

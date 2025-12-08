@@ -15,6 +15,15 @@ public class QuizService : IQuizService
         _userRepository = userRepository;
     }
 
+    private string GenerateUniqueCode(int length = 5)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
+        var random = new Random();
+        
+        return new string(Enumerable.Repeat(chars, length)
+          .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
     public async Task<Models.Quiz?> GetByIdAsync(int id)
     {
         return await _quizRepository.GetByIdAsync(id);
@@ -35,6 +44,14 @@ public class QuizService : IQuizService
         return await _quizRepository.GetQuizzesByAuthorAsync(authorId);
     }
 
+    public async Task<Models.Quiz?> GetByAccessKeyAsync(string code)
+    {
+        // Передаем код в верхнем регистре, чтобы гарантировать совпадение с сохраненным
+        return await _quizRepository.GetByAccessKeyAsync(code.ToUpperInvariant());
+    }
+
+
+
     public async Task<Models.Quiz> CreateAsync(Models.Quiz quiz)
     {
         var author = await _userRepository.GetByIdAsync(quiz.AuthorId);
@@ -42,6 +59,24 @@ public class QuizService : IQuizService
             throw new Exception("Author not found");
 
         quiz.CreatedAt = DateTime.UtcNow;
+
+        if (!quiz.isPublic)
+        {
+            string uniqueCode;
+            bool isUnique;
+            
+            do
+            {
+                uniqueCode = GenerateUniqueCode(5);
+                // Проверяем уникальность сгенерированного кода в базе
+                var existingQuiz = await _quizRepository.GetByAccessKeyAsync(uniqueCode); 
+                isUnique = existingQuiz == null;
+                
+            } while (!isUnique); 
+
+            // Сохраняем код в верхнем регистре для упрощения поиска без учета регистра
+            quiz.PrivateAccessKey = uniqueCode.ToUpperInvariant(); 
+        }
 
         await _quizRepository.AddAsync(quiz);
         return quiz;

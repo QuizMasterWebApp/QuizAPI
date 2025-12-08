@@ -34,20 +34,6 @@ public class AttemptController : ControllerBase
                 QuizId = attempt.QuizId
             };
     }
-    
-    //private AttemptResultDto MapToAttemptResultDto(Attempt attempt)
-    //{
-    //     return new AttemptResultDto
-    //        {
-    //            Id = attempt.Id,
-    //            Score = attempt.Score,
-    //            TimeSpent = attempt.TimeSpent,
-    //            CompletedAt = attempt.CompletedAt,
-    //            UserId = attempt.UserId,
-    //            GuestSessionId = attempt.UserId == null ? attempt.GuestSessionId : null,
-    //            QuizId = attempt.QuizId
-    //        };
-    //}
 
     // POST: api/attempt/quiz-sessions/{quizId}/start
     [HttpPost("{quizId}/start")]

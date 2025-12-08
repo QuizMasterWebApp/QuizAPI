@@ -61,6 +61,25 @@ public class QuizController : ControllerBase
         if (quiz == null)
             return NotFound($"Quiz with ID {id} not found.");
 
+        string? accessKey = null;
+
+        if (!quiz.isPublic)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int? currentUserId = int.TryParse(userIdClaim, out var uid) ? uid : null;
+
+            // Если пользователь авторизован И является автором, показываем ключ
+            if (currentUserId.HasValue && quiz.AuthorId == currentUserId.Value)
+            {
+                accessKey = quiz.PrivateAccessKey;
+            }
+            else
+            {
+                // Если викторина приватна и пользователь не автор, запрещаем доступ к деталям
+                return Forbid("Access denied for this private quiz details.");
+            }
+        }
+
         var result = new QuizDto
         {
             Id = quiz.Id,
@@ -70,7 +89,8 @@ public class QuizController : ControllerBase
             IsPublic = quiz.isPublic,
             AuthorId = quiz.AuthorId,
             TimeLimit = quiz.TimeLimit,
-            CreatedAt = quiz.CreatedAt
+            CreatedAt = quiz.CreatedAt,
+            PrivateAccessKey = accessKey
         };
 
         return Ok(result);
@@ -78,8 +98,28 @@ public class QuizController : ControllerBase
 
     // GET: api/quiz/{quizId}/questions
     [HttpGet("{quizId}/questions")]
-    public async Task<IActionResult> GetQuestions(int quizId)
+    public async Task<IActionResult> GetQuestions(int quizId, [FromQuery] string? accessKey)
     {
+        // 1. Проверяем доступ к викторине
+        var quiz = await _quizService.GetByIdAsync(quizId);
+        if (quiz == null)
+            return NotFound($"Quiz with ID {quizId} not found.");
+
+        // Если викторина приватная, проверяем права доступа
+        if (!quiz.isPublic)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int? currentUserId = int.TryParse(userIdClaim, out var uid) ? uid : null;
+            
+            bool isAuthor = currentUserId.HasValue && quiz.AuthorId == currentUserId.Value;
+            bool hasValidKey = quiz.PrivateAccessKey != null && quiz.PrivateAccessKey == accessKey?.ToUpperInvariant();
+
+            if (!isAuthor && !hasValidKey)
+            {
+                return Forbid("Access denied for this private quiz."); 
+            }
+        }
+
         var questions = await _questionService.GetByQuizAsync(quizId);
 
         if (!questions.Any())
@@ -123,6 +163,41 @@ public class QuizController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("connect/{code}")]
+    [AllowAnonymous] // Доступ разрешен, т.к. пользователь может быть гостем
+    public async Task<IActionResult> ConnectByCode(string code)
+    {
+        if (string.IsNullOrEmpty(code) || code.Length != 5)
+        {
+            return BadRequest("Access code must be 5 characters long.");
+        }
+        
+        // 1. Поиск викторины по коду
+        var quiz = await _quizService.GetByAccessKeyAsync(code); 
+        
+        if (quiz == null)
+        {
+            // Используем NotFound, но с общим сообщением, чтобы не раскрывать информацию о существовании кода
+            return NotFound("Quiz not found or code is invalid."); 
+        }
+        
+        // 2. Дополнительная проверка: должна быть приватной
+        if (quiz.isPublic)
+        {
+            return BadRequest("This quiz is public and does not require an access code."); 
+        }
+        
+        // 3. Доступ разрешен: возвращаем ID и основные данные, чтобы фронтенд мог начать викторину
+        return Ok(new QuizAccessInfoDto
+        {
+            QuizId = quiz.Id,
+            Title = quiz.Title,
+            Description = quiz.Description,
+            TimeLimit = quiz.TimeLimit,
+            AccessKey = quiz.PrivateAccessKey,
+        });
+    }
+
     // POST: api/quiz
     [HttpPost]
     [Authorize]
@@ -160,7 +235,8 @@ public class QuizController : ControllerBase
                 IsPublic = created.isPublic,
                 AuthorId = created.AuthorId,
                 TimeLimit = created.TimeLimit,
-                CreatedAt = created.CreatedAt
+                CreatedAt = created.CreatedAt,
+                PrivateAccessKey = created.PrivateAccessKey
             });
         }
         catch (Exception ex)

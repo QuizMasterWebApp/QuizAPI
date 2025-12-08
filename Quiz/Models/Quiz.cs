@@ -10,6 +10,7 @@ public class Quiz
     public TimeSpan? TimeLimit  { get; set; }
     public int AuthorId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? PrivateAccessKey { get; set; }
 
     public User Author { get; set; }
     public Category? Category { get; set; }
