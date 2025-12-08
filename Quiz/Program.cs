@@ -71,6 +71,8 @@ public class Program
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
+        builder.Services.AddSingleton<IHtmlSanitizerService, HtmlSanitizerService>();
+
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -111,13 +113,14 @@ public class Program
         app.UseHsts();
         app.UseHttpsRedirection();
         app.UseRouting();
-        app.UseMiddleware<SecurityHeadersMiddleware>();
-        
-        app.UseAuthentication();
-        app.UseAuthorization();
 
+        app.UseMiddleware<SecurityHeadersMiddleware>();
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<GuestSessionMiddleware>();
+        app.UseMiddleware<HtmlSanitizerMiddleware>();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapControllers();
 

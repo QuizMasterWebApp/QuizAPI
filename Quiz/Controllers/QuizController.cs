@@ -20,7 +20,9 @@ public class QuizController : ControllerBase
     private readonly IQuestionService _questionService;
     private readonly IAttemptService _attemptService;
 
-    public QuizController(IQuizService quizService, IQuestionService questionService, IAttemptService attemptService)
+    public QuizController(IQuizService quizService, 
+        IQuestionService questionService, 
+        IAttemptService attemptService)
     {
         _quizService = quizService;
         _questionService = questionService;
