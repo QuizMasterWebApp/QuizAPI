@@ -1,5 +1,9 @@
 ﻿namespace Quiz.Services.Interfaces;
+
+using Quiz.Models;
+
 using Quiz.DTOs.Quiz;
+
 
 public interface IQuizService
 {
@@ -11,4 +15,5 @@ public interface IQuizService
     Task<Models.Quiz> CreateAsync(Models.Quiz quiz);
     Task<bool> UpdateAsync(Models.Quiz quiz);
     Task<bool> DeleteAsync(int id);
+    Task<IEnumerable<Models.Quiz>> GetQuizzesByCategoryAsync(CategoryType category);
 }

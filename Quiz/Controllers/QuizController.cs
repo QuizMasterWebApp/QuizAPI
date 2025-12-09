@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Quiz.DTOs.Attempt;
 using Quiz.DTOs.Question;
 using Quiz.DTOs.Quiz;
+using Quiz.DTOs.CategoryTypeDto;
 using Quiz.Models;
 using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
@@ -43,7 +44,7 @@ public class QuizController : ControllerBase
             Id = q.Id,
             Title = q.Title,
             Description = q.Description,
-            CategoryId = q.CategoryId,
+            Category = q.Category ?? CategoryType.Other,
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,
@@ -85,7 +86,7 @@ public class QuizController : ControllerBase
             Id = quiz.Id,
             Title = quiz.Title,
             Description = quiz.Description,
-            CategoryId = quiz.CategoryId,
+            Category = quiz.Category ?? CategoryType.Other,
             IsPublic = quiz.isPublic,
             AuthorId = quiz.AuthorId,
             TimeLimit = quiz.TimeLimit,
@@ -254,7 +255,7 @@ public class QuizController : ControllerBase
             {
                 Title = dto.Title,
                 Description = dto.Description,
-                CategoryId = dto.CategoryId,
+                Category = dto.Category,
                 isPublic = dto.IsPublic,
                 AuthorId = authorizedUserId,
                 TimeLimit = dto.TimeLimit,
@@ -268,7 +269,7 @@ public class QuizController : ControllerBase
                 Id = created.Id,
                 Title = created.Title,
                 Description = created.Description,
-                CategoryId = created.CategoryId,
+                Category = created.Category ?? CategoryType.Other,
                 IsPublic = created.isPublic,
                 AuthorId = created.AuthorId,
                 TimeLimit = created.TimeLimit,
@@ -298,7 +299,7 @@ public class QuizController : ControllerBase
 
         existing.Title = dto.Title ?? existing.Title;
         existing.Description = dto.Description ?? existing.Description;
-        existing.CategoryId = dto.CategoryId ?? existing.CategoryId;
+        existing.Category = dto.Category ?? existing.Category;
         existing.isPublic = dto.IsPublic ?? existing.isPublic;
         existing.TimeLimit = dto.TimeLimit ?? existing.TimeLimit;
 
@@ -307,6 +308,39 @@ public class QuizController : ControllerBase
             return StatusCode(500, "Failed to update quiz due to server error.");
 
         return Ok("Updated");
+    }
+
+    [HttpGet("by-category/{categoryName}")]
+    public async Task<IActionResult> GetByCategory(string categoryName)
+    {
+        // 1. Попытка распарсить строку в наш Enum CategoryType
+        if (!Enum.TryParse(categoryName, true, out CategoryType category))
+        {
+            return BadRequest($"Invalid category name: {categoryName}. Available categories: {string.Join(", ", Enum.GetNames(typeof(CategoryType)))}");
+        }
+
+        // 2. Вызов сервиса
+        var quizzes = await _quizService.GetQuizzesByCategoryAsync(category);
+
+        if (!quizzes.Any())
+        {
+            return NotFound($"No public quizzes found in category {categoryName}.");
+        }
+
+        // 3. Маппинг в DTO
+        var result = quizzes.Select(q => new QuizDto
+        {
+            Id = q.Id,
+            Title = q.Title,
+            Description = q.Description,
+            Category = q.Category ?? CategoryType.Other, // Теперь это Enum
+            IsPublic = q.isPublic,
+            AuthorId = q.AuthorId,
+            TimeLimit = q.TimeLimit,
+            CreatedAt = q.CreatedAt
+        });
+
+        return Ok(result);
     }
 
     // DELETE: api/quiz/{id}
@@ -328,5 +362,4 @@ public class QuizController : ControllerBase
             return StatusCode(500, "Failed to delete quiz due to server error.");
         return Ok("Deleted");
     }
-
 }

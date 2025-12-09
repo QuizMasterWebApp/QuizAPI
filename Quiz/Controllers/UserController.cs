@@ -95,7 +95,7 @@ public class UserController : ControllerBase
             Id = q.Id,
             Title = q.Title,
             Description = q.Description,
-            CategoryId = q.CategoryId,
+            Category = q.Category ?? CategoryType.Other,
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,

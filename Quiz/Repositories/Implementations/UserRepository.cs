@@ -17,7 +17,6 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users
             .Include(u => u.Quizzes)
-                .ThenInclude(q => q.Category)
             .Include(u => u.Attempts)
                 .ThenInclude(a => a.Quiz)
             .FirstOrDefaultAsync(u => u.Id == id);

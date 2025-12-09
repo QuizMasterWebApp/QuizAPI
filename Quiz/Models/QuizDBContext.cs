@@ -17,7 +17,6 @@ public class QuizDBContext : DbContext
     }
 
     public DbSet<Attempt> Attempts { get; set; }
-    public DbSet<Category> Categories { get; set; }
     public DbSet<Option> Options { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Quiz> Quizzes { get; set; }
@@ -73,15 +72,6 @@ public class QuizDBContext : DbContext
                   .OnDelete(DeleteBehavior.SetNull);
         });
 
-        //  Category 
-        modelBuilder.Entity<Category>(entity =>
-        {
-            entity.HasKey(c => c.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
-            entity.HasIndex(e => e.Name).IsUnique();
-        });
-
         //  Question 
         modelBuilder.Entity<Question>(entity =>
         {
@@ -117,10 +107,9 @@ public class QuizDBContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(q => q.Title).IsRequired().HasMaxLength(200);
 
-            entity.HasOne(q => q.Category)
-                  .WithMany(c => c.Quizzes)
-                  .HasForeignKey(q => q.CategoryId)
-                  .OnDelete(DeleteBehavior.SetNull);
+            entity.Property(e => e.Category)
+                .HasConversion<int>()
+                .IsRequired(false);
 
             entity.HasOne(q => q.Author)
                   .WithMany(u => u.Quizzes)

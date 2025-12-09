@@ -25,7 +25,6 @@ public class QuizRepository : IQuizRepository
         return await _context.Quizzes
             .Where(q => q.isPublic)
             .Include(q => q.Author)
-            .Include(q => q.Category)
             .ToListAsync();
     }
 
@@ -34,7 +33,6 @@ public class QuizRepository : IQuizRepository
         // Category для отображения
         return await _context.Quizzes
             .Where(q => q.AuthorId == authorId)
-            .Include(q => q.Category)
             .ToListAsync();
     }
 
@@ -55,7 +53,6 @@ public class QuizRepository : IQuizRepository
         // Возвращает викторину со всеми деталями: автор, категория, вопросы, варианты и попытки.
         return await _context.Quizzes
             .Include(q => q.Author)
-            .Include(q => q.Category)
             .Include(q => q.Questions)
                 .ThenInclude(q => q.Options)
             .Include(q => q.Attempts)
@@ -69,6 +66,24 @@ public class QuizRepository : IQuizRepository
             .Include(q => q.Questions)
                 .ThenInclude(q => q.Options)
             .FirstOrDefaultAsync(q => q.PrivateAccessKey == key.ToUpper()); // Сохраняем и ищем в верхнем регистре
+    }
+
+    public async Task<IEnumerable<Models.Quiz>> GetQuizzesByCategoryAsync(CategoryType category)
+    {
+        var query = _context.Quizzes.Where(q => q.isPublic);
+
+        if (category == CategoryType.Other)
+        {
+            query = query.Where(q => q.Category == CategoryType.Other || q.Category == null);
+        }
+        else
+        {
+            query = query.Where(q => q.Category == category);
+        }
+
+        return await query
+            .Include(q => q.Author)
+            .ToListAsync();
     }
 
     public async Task DeleteAsync(int id)

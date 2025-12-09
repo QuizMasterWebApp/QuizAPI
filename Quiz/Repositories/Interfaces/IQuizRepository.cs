@@ -12,4 +12,5 @@ public interface IQuizRepository
     Task AddAsync(Models.Quiz quiz);
     Task UpdateAsync(Models.Quiz quiz);
     Task DeleteAsync(int id);
+    Task<IEnumerable<Models.Quiz>> GetQuizzesByCategoryAsync(CategoryType category);
 }

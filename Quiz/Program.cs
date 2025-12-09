@@ -58,7 +58,6 @@ public class Program
         builder.Services.AddScoped<IAttemptRepository, AttemptRepository>();
         builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
         builder.Services.AddScoped<IOptionRepository, OptionRepository>();
-        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
 
@@ -68,7 +67,6 @@ public class Program
         builder.Services.AddScoped<IAttemptService, AttemptService>();
         builder.Services.AddScoped<IUserAnswerService, UserAnswerService>();
         builder.Services.AddScoped<IOptionService, OptionService>();
-        builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         builder.Services.AddSingleton<IHtmlSanitizerService, HtmlSanitizerService>();

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Quiz.Models;
 
 namespace Quiz.DTOs.Quiz;
 public class QuizCreateDto
@@ -9,10 +10,7 @@ public class QuizCreateDto
     
     [StringLength(5000, ErrorMessage = "Description cannot exceed 5000 characters.")]
     public string? Description { get; set; }
-    
-    [Range(1, int.MaxValue, ErrorMessage = "Invalid Category ID.")]
-    public int? CategoryId { get; set; }
-    
+    public CategoryType Category { get; set; }
     [Required]
     public bool IsPublic { get; set; }
     public TimeSpan? TimeLimit { get; set; } = TimeSpan.Zero;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Quiz.DTOs.Category;
+using Quiz.DTOs.CategoryTypeDto;
 using Quiz.DTOs.Quiz;
 using Quiz.Models;
 using Quiz.Services.Implementations;
@@ -14,76 +14,39 @@ namespace Quiz.Controllers;
 [ApiController]
 public class CategoryController : ControllerBase
 {
-    private readonly ICategoryService _categoryService;
-
-    public CategoryController(ICategoryService categoryService)
-    {
-        _categoryService = categoryService;
-    }
 
     // GET: api/category
     [HttpGet]
-    public async Task<IActionResult> GetAllCategories()
+    public IActionResult GetAllCategories()
     {
-        var categories = await _categoryService.GetAllAsync() ?? new List<Category>();
+        // Получаем все значения из ENUM
+        var categories = Enum.GetValues(typeof(CategoryType))
+            .Cast<CategoryType>()
+            .Select(type => new CategoryTypeDto
+            {
+                CategoryType = type,
+                Name = type.ToString() // Преобразуем enum в строку для Name
+            })
+            .ToList();
 
-        var result = categories.Select(c => new CategoryDto
-        {
-            Id = c.Id,
-            Name = c.Name
-        });
-
-        return Ok(result);
+        return Ok(categories);
     }
 
     // GET: api/category/{id}
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public IActionResult GetById(int id)
     {
-        var category = await _categoryService.GetByIdAsync(id);
-
-        if (category == null)
+        if (!Enum.IsDefined(typeof(CategoryType), id))
             return NotFound($"Category with ID {id} not found.");
 
-        var result = new CategoryDto
+        var categoryType = (CategoryType)id;
+
+        var result = new CategoryTypeDto
         {
-            Id = category.Id,
-            Name = category.Name
+            CategoryType = categoryType,
+            Name = categoryType.ToString()
         };
 
         return Ok(result);
-    }
-
-    // POST: api/category
-    [HttpPost]
-    [Authorize]
-    public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        try
-        {
-            var existing = await _categoryService.GetByNameAsync(dto.Name);
-            if (existing is not null)
-                return Conflict($"Category with name {dto.Name} is alresdy exist");
-
-            var category = new Category
-            {
-                Name = dto.Name
-            };
-
-            var created = await _categoryService.CreateAsync(category);
-
-            return Ok(new CategoryDto
-            {
-                Id = created.Id,
-                Name = created.Name
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
     }
 }
