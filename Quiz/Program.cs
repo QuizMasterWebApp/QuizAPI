@@ -102,6 +102,22 @@ public class Program
 
         var app = builder.Build();
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            try
+            {
+                var context = services.GetRequiredService<QuizDBContext>();
+                context.Database.Migrate(); 
+                Console.WriteLine("Database migrations applied successfully.");
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while migrating the database.");
+            }
+        }
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
