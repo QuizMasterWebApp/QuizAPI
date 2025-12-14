@@ -12,6 +12,7 @@ public class QuizDto
     public TimeSpan? TimeLimit { get; set; }
     public DateTime CreatedAt { get; set; }
     public string? PrivateAccessKey { get; set; }
+    public bool IsDeleted { get; set; }
 }
 
 public class QuizAccessInfoDto

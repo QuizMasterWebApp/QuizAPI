@@ -53,7 +53,7 @@ public class QuestionRepository : IQuestionRepository
     /// </summary>
     /// <param name="quizId"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<Question>> GetQuestionsWithOptionsByQuizAsync(int quizId)
+    public async Task<IEnumerable<Question>> GetQuestionsWithOptionsByQuizAsync(int? quizId)
     {
         return await _context.Questions
             .Where(q => q.QuizId == quizId)
@@ -98,5 +98,11 @@ public class QuestionRepository : IQuestionRepository
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<bool> HasAnswersAsync(int questionId)
+    {
+        return await _context.UserAnswers
+            .AnyAsync(ua => ua.QuestionId == questionId);
     }
 }

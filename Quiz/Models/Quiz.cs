@@ -10,6 +10,7 @@ public class Quiz
     public int AuthorId { get; set; }
     public DateTime CreatedAt { get; set; }
     public string? PrivateAccessKey { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
     public User Author { get; set; }
     public CategoryType? Category { get; set; }

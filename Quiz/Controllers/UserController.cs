@@ -102,7 +102,8 @@ public class UserController : ControllerBase
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,
-            CreatedAt = q.CreatedAt
+            CreatedAt = q.CreatedAt,
+            IsDeleted = q.IsDeleted
         });
 
         return Ok(result);

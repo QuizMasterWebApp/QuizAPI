@@ -33,6 +33,7 @@ public class AttemptRepository : IAttemptRepository
     {
         return await _context.Attempts
             .Include(a => a.User)
+            .IgnoreQueryFilters()
             .Include(a => a.Quiz)
                 .ThenInclude(q => q.Questions!)
                     .ThenInclude(q => q.Options)
@@ -104,6 +105,8 @@ public class AttemptRepository : IAttemptRepository
         return await _context.Attempts
             .Where(a => a.QuizId == quizId)
             .Include(a => a.User)
+            .Include(a => a.Quiz) 
+            .IgnoreQueryFilters()
             .OrderByDescending(a => a.Score)
             .ThenBy(a => a.TimeSpent)
             .ToListAsync();
@@ -120,6 +123,7 @@ public class AttemptRepository : IAttemptRepository
         return await _context.Attempts
             .Where(a => a.UserId == userId && a.QuizId == quizId)
             .Include(a => a.Quiz)
+            .IgnoreQueryFilters()
             .OrderByDescending(a => a.CompletedAt)
             .ToListAsync();
     }
@@ -135,6 +139,7 @@ public class AttemptRepository : IAttemptRepository
         return await _context.Attempts
             .Where(a => a.GuestSessionId == guestSessionId && a.QuizId == quizId)
             .Include(a => a.Quiz)
+            .IgnoreQueryFilters()
             .OrderByDescending(a => a.CompletedAt)
             .ToListAsync();
     }

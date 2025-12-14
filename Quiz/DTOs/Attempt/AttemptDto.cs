@@ -8,5 +8,5 @@ public class AttemptDto
     public DateTime CompletedAt { get; set; }
     public int? UserId { get; set; }
     public string? GuestSessionId { get; set; }
-    public int QuizId { get; set; }
+    public int? QuizId { get; set; }
 }

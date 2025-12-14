@@ -4,7 +4,7 @@ namespace Quiz.Repositories.Interfaces;
 
 public interface IQuizRepository
 {
-    Task<Models.Quiz?> GetByIdAsync(int id);
+    Task<Models.Quiz?> GetByIdAsync(int? id);
     Task<Models.Quiz?> GetByIdWithDetailsAsync(int id); // вопросы + опции + автор
     Task<IEnumerable<Models.Quiz>> GetPublicQuizzesAsync();
     Task<IEnumerable<Models.Quiz>> GetQuizzesByAuthorAsync(int authorId);

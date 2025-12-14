@@ -61,6 +61,9 @@ public class QuestionController : ControllerBase
             return BadRequest(ModelState);
 
         var quiz = await _quizService.GetByIdAsync(dto.QuizId);
+        if (quiz.IsDeleted)
+            return BadRequest("This quiz was deleted");
+
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
         if (quiz.AuthorId != authorizedUserId)
@@ -130,20 +133,24 @@ public class QuestionController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
-        var question = await _questionService.GetByIdAsync(id);
-        if (question == null)
-            return NotFound($"Question with ID {id} not found.");
+        try
+        {
+            var question = await _questionService.GetByIdAsync(id);
+            if (question == null)
+                return NotFound($"Question with ID {id} not found.");
 
-        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        int authorizedUserId = int.Parse(user);
-        if (question.Quiz.AuthorId != authorizedUserId)
-            return StatusCode(403, new { error = "Only the quiz author can delete a question." });
+            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int authorizedUserId = int.Parse(user);
+            if (question.Quiz.AuthorId != authorizedUserId)
+                return StatusCode(403, new { error = "Only the quiz author can delete a question." });
 
-        var success = await _questionService.DeleteAsync(id);
-        
-        if (!success)
-            return StatusCode(500, "Failed to delete question due to server error.");
-        return Ok("Deleted");
+            var success = await _questionService.DeleteAsync(id);
+
+            if (!success)
+                return StatusCode(500, "Failed to delete question due to server error.");
+            return Ok("Deleted");
+        }
+        catch (Exception ex) { return Conflict(ex.Message); }
     }
 
     // GET: api/question/option/{id}

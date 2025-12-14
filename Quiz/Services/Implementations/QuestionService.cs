@@ -54,7 +54,7 @@ public class QuestionService : IQuestionService
         ValidateOptions(question, isCorrectFlags);
 
         var quiz = await _quizRepository.GetByIdAsync(question.QuizId)
-            ?? throw new KeyNotFoundException("Quiz not found");
+                  ?? throw new KeyNotFoundException("Quiz not found");
 
         await _questionRepository.AddAsync(question);
 
@@ -134,6 +134,9 @@ public class QuestionService : IQuestionService
         var existing = await _questionRepository.GetByIdAsync(id);
         if (existing == null)
             return false;
+
+        if (await _questionRepository.HasAnswersAsync(id))
+            throw new Exception("Cannot delete question because it has user answers");
 
         await _questionRepository.DeleteAsync(id);
         return true;

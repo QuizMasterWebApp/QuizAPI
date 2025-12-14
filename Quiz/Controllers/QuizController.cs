@@ -48,7 +48,8 @@ public class QuizController : ControllerBase
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,
-            CreatedAt = q.CreatedAt
+            CreatedAt = q.CreatedAt,
+            IsDeleted = q.IsDeleted
         });
 
         return Ok(result);
@@ -91,7 +92,8 @@ public class QuizController : ControllerBase
             AuthorId = quiz.AuthorId,
             TimeLimit = quiz.TimeLimit,
             CreatedAt = quiz.CreatedAt,
-            PrivateAccessKey = accessKey
+            PrivateAccessKey = accessKey,
+            IsDeleted = quiz.IsDeleted
         };
 
         return Ok(result);
@@ -101,7 +103,7 @@ public class QuizController : ControllerBase
     [HttpGet("{quizId}/questions")]
     public async Task<IActionResult> GetQuestions(int quizId, [FromQuery] string? accessKey)
     {
-        // 1. Проверяем доступ к викторине
+        //Проверяем доступ к викторине
         var quiz = await _quizService.GetByIdAsync(quizId);
         if (quiz == null)
             return NotFound($"Quiz with ID {quizId} not found.");
@@ -266,7 +268,8 @@ public class QuizController : ControllerBase
                 AuthorId = created.AuthorId,
                 TimeLimit = created.TimeLimit,
                 CreatedAt = created.CreatedAt,
-                PrivateAccessKey = created.PrivateAccessKey
+                PrivateAccessKey = created.PrivateAccessKey,
+                IsDeleted = created.IsDeleted
             });
         }
         catch (Exception ex)
@@ -283,6 +286,9 @@ public class QuizController : ControllerBase
         var existing = await _quizService.GetByIdAsync(id);
         if (existing == null)
             return NotFound($"Quiz with ID {id} not found.");
+
+        if (existing.IsDeleted)
+            return BadRequest("This Quiz was deleted");
 
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int authorizedUserId = int.Parse(user);
@@ -325,7 +331,8 @@ public class QuizController : ControllerBase
             IsPublic = q.isPublic,
             AuthorId = q.AuthorId,
             TimeLimit = q.TimeLimit,
-            CreatedAt = q.CreatedAt
+            CreatedAt = q.CreatedAt,
+            IsDeleted = q.IsDeleted
         });
 
         return Ok(result);

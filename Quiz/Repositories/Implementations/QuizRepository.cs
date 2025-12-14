@@ -18,9 +18,12 @@ public class QuizRepository : IQuizRepository
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<Models.Quiz?> GetByIdAsync(int id)
+    public async Task<Models.Quiz?> GetByIdAsync(int? id)
     {
+        if (id == null) return null;
+
         return await _context.Quizzes
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(q => q.Id == id);
     }
 
@@ -132,7 +135,8 @@ public class QuizRepository : IQuizRepository
 
         if (quiz != null)
         {
-            _context.Quizzes.Remove(quiz);
+            //_context.Quizzes.Remove(quiz);
+            quiz.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
     }

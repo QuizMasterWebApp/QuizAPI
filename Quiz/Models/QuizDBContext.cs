@@ -103,6 +103,8 @@ public class QuizDBContext : DbContext
         //  Quiz 
         modelBuilder.Entity<Quiz>(entity =>
         {
+            entity.HasQueryFilter(q => !q.IsDeleted);
+
             entity.HasKey(q => q.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(q => q.Title).IsRequired().HasMaxLength(200);
@@ -124,7 +126,7 @@ public class QuizDBContext : DbContext
             entity.HasMany(q => q.Attempts)
                   .WithOne(a => a.Quiz)
                   .HasForeignKey(a => a.QuizId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         //  Attempt 
@@ -134,10 +136,10 @@ public class QuizDBContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Score).HasDefaultValue(0);
 
-            entity.HasOne(e => e.Quiz)
-                .WithMany(e => e.Attempts)
-                .HasForeignKey(e => e.QuizId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //entity.HasOne(e => e.Quiz)
+            //    .WithMany(e => e.Attempts)
+            //    .HasForeignKey(e => e.QuizId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.User)
                 .WithMany(e => e.Attempts)

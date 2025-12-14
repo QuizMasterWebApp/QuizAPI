@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Quiz.Models;
@@ -11,9 +12,11 @@ using Quiz.Models;
 namespace Quiz.Migrations
 {
     [DbContext(typeof(QuizDBContext))]
-    partial class QuizDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251214081517_QuizDeleting")]
+    partial class QuizDeleting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +39,7 @@ namespace Quiz.Migrations
                     b.Property<string>("GuestSessionId")
                         .HasColumnType("text");
 
-                    b.Property<int?>("QuizId")
+                    b.Property<int>("QuizId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Score")
@@ -115,7 +118,7 @@ namespace Quiz.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("QuizId")
+                    b.Property<int>("QuizId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
@@ -266,7 +269,8 @@ namespace Quiz.Migrations
                     b.HasOne("Quiz.Models.Quiz", "Quiz")
                         .WithMany("Attempts")
                         .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Quiz.Models.User", "User")
                         .WithMany("Attempts")
@@ -294,7 +298,8 @@ namespace Quiz.Migrations
                     b.HasOne("Quiz.Models.Quiz", "Quiz")
                         .WithMany("Questions")
                         .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Quiz");
                 });
