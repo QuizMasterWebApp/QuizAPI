@@ -145,7 +145,7 @@ public class UserController : ControllerBase
         if (existing.Id != authorizedUserId)
             return StatusCode(403, new { error = "You can only edit your own profile" });
 
-        string? hashedPassword = null;
+/*         string? hashedPassword = null;
         if (dto.Password is not null)
             hashedPassword = PasswordHasher.HashPassword(dto.Password);
 
@@ -154,10 +154,37 @@ public class UserController : ControllerBase
             User? checkname = await _userService.GetByUsernameAsync(dto.UserName);
             if (checkname is not null)
                 return Conflict($"Username {dto.UserName} is taken");
+        } */
+
+        if (!string.IsNullOrWhiteSpace(dto.Password))
+        {
+            if (string.IsNullOrWhiteSpace(dto.OldPassword))
+            {
+                return BadRequest(new { error = "Current password is required to set a new password." });
+            }
+
+            bool isOldPasswordCorrect = PasswordHasher.VerifyPassword(dto.OldPassword, existing.PasswordHash);
+            
+            if (!isOldPasswordCorrect)
+            {
+                return Unauthorized(new { error = "Current password is incorrect." });
+            }
+
+            existing.PasswordHash = PasswordHasher.HashPassword(dto.Password);
         }
 
-        existing.Username = dto.UserName ?? existing.Username;
-        existing.PasswordHash = hashedPassword ?? existing.PasswordHash;
+        // 2. ЛОГИКА ОБНОВЛЕНИЯ ИМЕНИ
+        if (!string.IsNullOrWhiteSpace(dto.UserName) && dto.UserName != existing.Username)
+        {
+            User? checkname = await _userService.GetByUsernameAsync(dto.UserName);
+            if (checkname is not null)
+                return Conflict(new { error = $"Username {dto.UserName} is taken" });
+            
+            existing.Username = dto.UserName;
+        }
+
+        /* existing.Username = dto.UserName ?? existing.Username;
+        existing.PasswordHash = hashedPassword ?? existing.PasswordHash; */
 
         var success = await _userService.UpdateAsync(existing);
         if (!success)
