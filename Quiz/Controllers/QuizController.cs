@@ -138,6 +138,7 @@ public class QuizController : ControllerBase
             {
                 Id = o.Id,
                 Text = o.Text,
+                IsCorrect = o.IsCorrect,
             }).ToList()
         });
 

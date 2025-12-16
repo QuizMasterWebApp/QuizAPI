@@ -10,13 +10,6 @@ public class OptionDto
     public bool IsCorrect { get; set; }
 }
 
-//public class OptionAdminDto
-//{
-//    public int Id { get; set; }
-//    public string Text { get; set; } = string.Empty;
-//    public bool IsCorrect { get; set; }
-//}
-
 public class UpdateOptionDto
 {
     public string Text { get; set; } = string.Empty;
