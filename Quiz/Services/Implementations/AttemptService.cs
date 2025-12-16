@@ -4,6 +4,7 @@ using Quiz.Repositories.Interfaces;
 using Quiz.Services.Interfaces;
 using System.Security.Claims;
 
+
 namespace Quiz.Services.Implementations;
 
 public class AttemptService : IAttemptService
@@ -77,25 +78,41 @@ public class AttemptService : IAttemptService
     /// <returns></returns>
     /// <exception cref="KeyNotFoundException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task<Attempt> StartAttemptAsync(int quizId)
+    public async Task<Attempt> StartAttemptAsync(int quizId, string? accessKey = null)
     {
         var quiz = await _quizRepository.GetByIdWithQuestionsAsync(quizId)
             ?? throw new KeyNotFoundException("Quiz not found");
-    
+
         if (!quiz.Questions.Any())
         {
             throw new InvalidOperationException("Cannot start the quiz. It must contain at least one question.");
         }
 
+        // 2. ИЗВЛЕКАЕМ ID ПОЛЬЗОВАТЕЛЯ ОДИН РАЗ В НАЧАЛЕ
         var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        int? userId = int.TryParse(userIdClaim, out var uid) ? uid : null;
-        var guestId = _httpContextAccessor.HttpContext?.Items["GuestSessionId"]?.ToString();
+        int? currentUserId = int.TryParse(userIdClaim, out var parsedId) ? parsedId : null;
+
+        if (!quiz.isPublic)
+        {
+            bool isAuthor = currentUserId.HasValue && quiz.AuthorId == currentUserId.Value;
+            bool hasValidKey = !string.IsNullOrEmpty(quiz.PrivateAccessKey) && 
+                            quiz.PrivateAccessKey.Equals(accessKey, StringComparison.OrdinalIgnoreCase);
+
+            if (!isAuthor && !hasValidKey)
+            {
+                throw new UnauthorizedAccessException("This quiz is private. A valid access key is required to start.");
+            }
+        }
+
+        var guestId = currentUserId == null 
+            ? _httpContextAccessor.HttpContext?.Items["GuestSessionId"]?.ToString() 
+            : null;
 
         var attempt = new Attempt
         {
             QuizId = quizId,
-            UserId = userId,
-            GuestSessionId = userId == null ? guestId : null,
+            UserId = currentUserId,
+            GuestSessionId = guestId,
             Score = 0,
             TimeSpent = TimeSpan.Zero,
             CompletedAt = DateTime.UtcNow
