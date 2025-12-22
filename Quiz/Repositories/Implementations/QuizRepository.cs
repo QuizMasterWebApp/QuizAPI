@@ -135,7 +135,6 @@ public class QuizRepository : IQuizRepository
 
         if (quiz != null)
         {
-            //_context.Quizzes.Remove(quiz);
             quiz.IsDeleted = true;
             await _context.SaveChangesAsync();
         }

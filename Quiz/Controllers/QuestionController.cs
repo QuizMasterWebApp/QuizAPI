@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Quiz.DTOs.Question;
 using Quiz.DTOs.Quiz;
 using Quiz.Models;
-using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace Quiz.Controllers;

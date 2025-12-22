@@ -76,7 +76,7 @@ public class QuizService : IQuizService
     /// <returns></returns>
     public async Task<Models.Quiz?> GetByAccessKeyAsync(string code)
     {
-        // Передаем код в верхнем регистре, чтобы гарантировать совпадение с сохраненным
+        // код в верхнем регистре
         return await _quizRepository.GetByAccessKeyAsync(code.ToUpperInvariant());
     }
 
@@ -108,7 +108,7 @@ public class QuizService : IQuizService
 
             } while (!isUnique);
 
-            // Сохраняем код в верхнем регистре для упрощения поиска без учета регистра
+            // Сохраняем код в верхнем регистре 
             quiz.PrivateAccessKey = uniqueCode.ToUpperInvariant();
         }
 

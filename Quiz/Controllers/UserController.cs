@@ -5,9 +5,7 @@ using Quiz.DTOs.Attempt;
 using Quiz.DTOs.Quiz;
 using Quiz.DTOs.User;
 using Quiz.Models;
-using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace Quiz.Controllers;
@@ -146,17 +144,7 @@ public class UserController : ControllerBase
         if (existing.Id != authorizedUserId)
             return StatusCode(403, new { error = "You can only edit your own profile" });
 
-/*         string? hashedPassword = null;
-        if (dto.Password is not null)
-            hashedPassword = PasswordHasher.HashPassword(dto.Password);
-
-        if (dto.UserName is not null)
-        {
-            User? checkname = await _userService.GetByUsernameAsync(dto.UserName);
-            if (checkname is not null)
-                return Conflict($"Username {dto.UserName} is taken");
-        } */
-
+        //обновление пароля
         if (!string.IsNullOrWhiteSpace(dto.Password))
         {
             if (string.IsNullOrWhiteSpace(dto.OldPassword))
@@ -174,7 +162,7 @@ public class UserController : ControllerBase
             existing.PasswordHash = PasswordHasher.HashPassword(dto.Password);
         }
 
-        // 2. ЛОГИКА ОБНОВЛЕНИЯ ИМЕНИ
+        //  обновление юзернейма
         if (!string.IsNullOrWhiteSpace(dto.UserName) && dto.UserName != existing.Username)
         {
             User? checkname = await _userService.GetByUsernameAsync(dto.UserName);
@@ -183,9 +171,6 @@ public class UserController : ControllerBase
             
             existing.Username = dto.UserName;
         }
-
-        /* existing.Username = dto.UserName ?? existing.Username;
-        existing.PasswordHash = hashedPassword ?? existing.PasswordHash; */
 
         var success = await _userService.UpdateAsync(existing);
         if (!success)

@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Quiz.DTOs.Attempt;
 using Quiz.DTOs.Question;
 using Quiz.DTOs.Quiz;
-using Quiz.DTOs.CategoryTypeDto;
 using Quiz.Models;
-using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 
@@ -202,12 +199,12 @@ public class QuizController : ControllerBase
         {
             attempts = await _attemptService.GetByQuizIdAsync(quizId); // Получает все попытки
         }
-        // АВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ (Видит только СВОИ попытки)
+        // авторизованный пользователь видит только свои попытки
         else if (isAuthorizedUser && authorizedUserId.HasValue)
         {
             attempts = await _attemptService.GetAttemptsByUserIdAndQuizIdAsync(authorizedUserId.Value, quizId);
         }
-        // ГОСТЬ (Видит только свои попытки по GuestSessionId)
+        // гость видит только свои попытки по GuestSessionId
         else if (!string.IsNullOrEmpty(guestSessionId))
         {
             attempts = await _attemptService.GetAttemptsByGuestIdAndQuizIdAsync(guestSessionId, quizId);
@@ -220,7 +217,6 @@ public class QuizController : ControllerBase
         if (!attempts.Any())
             return Ok(new List<AttemptDto>());
 
-        // Маппинг и возврат
         var result = attempts.Select(a => new AttemptDto
         {
             Id = a.Id,

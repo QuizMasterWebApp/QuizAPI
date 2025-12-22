@@ -88,7 +88,7 @@ public class AttemptService : IAttemptService
             throw new InvalidOperationException("Cannot start the quiz. It must contain at least one question.");
         }
 
-        // 2. ИЗВЛЕКАЕМ ID ПОЛЬЗОВАТЕЛЯ ОДИН РАЗ В НАЧАЛЕ
+        // получить ID пользователя
         var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         int? currentUserId = int.TryParse(userIdClaim, out var parsedId) ? parsedId : null;
 

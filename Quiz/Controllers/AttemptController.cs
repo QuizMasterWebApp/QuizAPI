@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Quiz.DTOs.Answer;
 using Quiz.DTOs.Attempt;
 using Quiz.Models;
-using Quiz.Services.Implementations;
 using Quiz.Services.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace Quiz.Controllers;
@@ -152,7 +150,7 @@ public class AttemptController : ControllerBase
     [HttpGet("quiz/{quizId}/leaderboard")]
     public async Task<IActionResult> GetLeaderboard(int quizId, [FromQuery] string? guestSessionId)
     {
-        // 1. Получаем попытки с данными о квизе
+        // получаем попытки с данными о квизе
         var attempts = await _attemptService.GetByQuizIdAsync(quizId);
         
         if (!attempts.Any())
@@ -162,7 +160,7 @@ public class AttemptController : ControllerBase
 
         var quiz = attempts.First().Quiz;
 
-        // 2. Если квиз приватный, проверяем права доступа
+        // если квиз приватный, проверяем права доступа
         if (!quiz.isPublic)
         {
             bool isAuthorized = User.Identity?.IsAuthenticated ?? false;
@@ -191,7 +189,6 @@ public class AttemptController : ControllerBase
             }
         }
 
-        // 3. Маппинг данных в DTO
         var result = attempts.Select(a => new LeaderboardEntryDto
         {
             UserName = a.User?.Username ?? "Guest",
